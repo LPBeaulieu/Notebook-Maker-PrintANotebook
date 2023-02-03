@@ -1,30 +1,24 @@
-# TintypeText
-This typewriter OCR application can convert JPEG typewritten text images into RTF documents, while removing typos for you!
+# PrintANotebook
+PrintANotebook lets you create your own notebooks, with page numbering and your favorite designs!
 
-![Image RTF basic mode](https://github.com/LPBeaulieu/Typewriter-OCR-TintypeText/blob/main/TintypeText%20basic%20rtf%20mode%20screenshot.jpg)
-<h3 align="center">Tintype¶Text</h3>
+![PrintABook Thumbnail](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/PrintABook%20Thumbnail.jpg)
+<h3 align="center">PrintANotebook</h3>
 <div align="center">
   
-  [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPLv3.0-brightgreen.svg)](https://github.com/LPBeaulieu/TintypeText/blob/main/LICENSE)
-  [![GitHub last commit](https://img.shields.io/github/last-commit/LPBeaulieu/TintypeText)](https://github.com/LPBeaulieu/TintypeText)
-  [![GitHub issues](https://img.shields.io/github/issues/LPBeaulieu/TintypeText)](https://github.com/LPBeaulieu/TintypeText)
+  [![License: AGPL-3.0](https://img.shields.io/badge/License-AGPLv3.0-brightgreen.svg)](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/LICENSE)
+  [![GitHub issues](https://img.shields.io/github/issues/LPBeaulieu/Book-Generator-PrintABook)](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook)
+  [![Linux](https://svgshare.com/i/Zhy.svg)](https://svgshare.com/i/Zhy.svg)
+  [![macOS](https://svgshare.com/i/ZjP.svg)](https://svgshare.com/i/ZjP.svg)
+  [![Windows](https://svgshare.com/i/ZhY.svg)](https://svgshare.com/i/ZhY.svg)
   
 </div>
 
 ---
 
-<p align="left"> <b>Tintype¶Text</b> is a tool enabling you to convert scanned typewritten pages (in JPEG image format) into rich text format (RTF) 
-  documents, complete with formatting elements such as text alignment, paragraphs, <u>underline</u>, <i>italics</i>, <b>bold</b> and <del>strikethrough</del>. </p>
-<p align="left"> A neat functionality of <b>Tintype¶Text</b> is that the typos (wrong typewritten characters overlaid with a hashtag)
-  automatically get filtered out, and do not appear in the final RTF text. This feature, when combined with erasable typewriter ink (see https://www.reddit.com/r/typewriters/comments/ujqxrh/how_to_make_erasable_typewriter_ink/) brings the typewriter well into the 21<sup>st</sup> century as a data entry tool!
-  
-  - You can get my <b>deep learning models</b> for both typewriters on which I developed the code on my Google Drive (<i>2021 
-Royal Epoch</i> https://drive.google.com/drive/folders/1DUKqYf7wIkRAobC8fYPjum5gFOJqJurv?usp=sharing and <i>1968 Olivetti Underwood Lettera 33</i> https://drive.google.com/drive/folders/1sykG3zUfr8RJVbk59ClnzHjO3qgkXTmF?usp=sharing), where the datasets and other useful information to build your own datasets may be found. 
-- The code showcased in this github page is the one that was used to generate a model with <b>99.93% optical character recognition (OCR) accuracy</b> with the 2021 Royal Epoch typewriter, which is in production and commercially available (I'm not affiliated with them, no worries).
-- The generalizability of the model trained on a 2021 Royal Epoch typewriter was assessed on another unit of the same model (2019 Royal Epoch typewriter), with a text over 6,000 characters long. It gave an OCR accuracy of 99.22%, thus demonstrating that deep learning models trained with <b>Tintype¶Text</b> could be used with other typewriters of the same model (albeit with somewhat lower accuracy).
-  
-    <br> 
-</p>
+<p align="left"> <b>PrintANotebook</b> is a tool allowing you to create your own personalized notebooks, complete with page numbering, personalized headings, and your choice of any combination of either blank pages, ruled lines, dot grid or graph pages. 
+You can even select your own designs to create some nifty planners! <b>PrintANotebook</b> also lets you personalize the cover with your favorite graphic design, and the text of your choosing on the front cover and spine of the notebook!</p>
+<br> 
+
 
 ## 📝 Table of Contents
 - [Dependencies / Limitations](#limitations)
@@ -34,174 +28,245 @@ Royal Epoch</i> https://drive.google.com/drive/folders/1DUKqYf7wIkRAobC8fYPjum5g
 - [Acknowledgments](#acknowledgments)
 
 ## ⛓️ Dependencies / Limitations <a name = "limitations"></a>
-- This Python project relies on the Fastai deep learning library (https://docs.fast.ai/) to generate a convoluted neural network 
-  deep learning model, which allows for typewriter optical character recognition (OCR). It also needs OpenCV to perform image segmentation 
-  (to crop the individual characters in the typewritten page images).
-  
-- A deep learning model trained on a specific typewriter is unlikely to generalize well to other typewriter brands, which may use different 
-  typesets and character spacing. It is therefore preferable to train a model on your own typewriter.
-- For best results, the typewritten text should be <b>double spaced</b> to avoid segmentation mistakes or omissions and the 8 1/2" x 11" typewritten pages should be <b>scanned at a resolution of 600 dpi</b>, as this resolution was used when writing the code.
-- Every typewritten line should have <b>at least five adjoining letters</b> in order to be properly detected. Should a line only contain a word with 
-  four or fewer letters, you could make up for the missing letters by using any character (other than "#") overlaid with a hashtag, which will 
-  be interpreted by the code as an empty string, and will not impact the meaningful text on the line in the final rich text format (RTF) document.
-- The <b>hashtag character is reserved</b> for designating typos, as a hyphen or equal sign overlaid with a hashtag are very similar to a hashtag 
-  character by itself and would lead to OCR accuracy loss if it were used as a regular character.
-- The <b>"@" symbol is reserved</b> to designate characters that are to be deleted (see description below) and should not be used on your typewriter, if it has such a type slug. 
-- It should be noted that one of the typewriters with which the code was developed  (1968 Olivetti Underwood Lettera 33) doesn’t have specific type slugs for numbers zero (0) and one (1). After the OCR step, the Python code will interpret whether the surrounding characters are also digits 
-  and assign the values to instances of uppercase “O” and lowercase “L” accordingly. It also converts the uppercase “O” into zero if it is 
-  in one of the closing RTF formatting commands (e.g. \iO is changed to \i0). Even if your typewriter has type slugs for zero and one, make sure that they are very distinct in appearance from the uppercase “O” and lowercase “L” in order to ensure good OCR accuracy. Otherwise, just use the letters instead. Also, the <b>equal sign</b> on the typewriter is interpreted as a <b>backslash</b> if it is followed by a letter or an RTF escape (\\' (ASCII rtf character escape), \\- (hyphenation point) or \\_ (nonbreaking hyphen)), which is useful in RTF commands and escape codes. For an in-depth explanation of all the most common RTF commands and escapes, please consult: https://www.oreilly.com/library/view/rtf-pocket-guide/9781449302047/ch01.html. 
-- To keep things as simple as possible in the (default) <b>basic RTF mode</b> of the "get_predictions.py" code, the use of curly brackets "{}" is disabled and "=par" is changed for "\par\pard" after OCR ("=" is used as there are no backslashes on typewriters). This means that the paragraph-formatting attributes (such as centered alignment, "<i>qc</i>" in the first line of the image above) are returned to their default values automatically when a new paragraph is started by typing "=par" on the typewriter.
-- In the <b>advanced RTF mode</b>, the use of two successive parentheses "(( and ))" is translated to curly braces "{ and }", respectively, in the "get_predictions.py" Python code. Also, "=par" is changed to "\par" in the advanced RTF mode (and not to "\par\pard" as in the basic RTF mode). This allows more flexibility and the use of the curly brackets already limits the scope of the RTF commands, so there is no need to have a "\pard" added automatically. The image below illustrates how to use the parentheses in RTF commands in the advanced RTF mode. 
+The code for cover image generation was optimized on notebooks having at least 100 pages (of 20 lb bond paper). However, I typically generate notebooks having a total of around 200 pages, and print them on 28 lb bond perforated paper from the Perforated Paper company, which works wonderfully with my homemade biodegradable phycocyanin fountain pen ink (https://www.linkedin.com/feed/update/urn:li:activity:7027151841851265024/), which lends itself very nicely to writing on both sides of the sheet of paper with minimal bleeding and ghosting. Moreover, the perforations of this paper are quite precise, with only slight spine sanding being required in order to craft professional looking notebooks. While I’m not affiliated with this company in any way, I find that their paper is very smooth and gives good results when binding books. They also sell some 24 lb bond perforated paper in cream color. Check them out at www.perforatedpaper.com!
 
-![Image RTF advanced mode](https://github.com/LPBeaulieu/Typewriter-OCR-TintypeText/blob/main/TintypeText%20advanced%20rtf%20mode%20image.jpg)<hr>
-
-- It is recommended to include a space between your text and the parentheses (single or double, see image above), to reduce segmentation issues due to staggered character rectangles. The Python code automatically removes these spaces (if present) in the final RTF document (see image above). 
-
-Despite these issues, the code has successfully located characters (segmentation step) on lines with at least 5 successive letters with a success 
-rate above 99.99% for the training/validation data consisting of over 25,000 characters. The only issue reported with the training/validation 
-data was an omitted period. As for the OCR accuracy, it was consistently above 99.8% regardless of the hyperparameters investigated (other than kernel size), provided
-a good-sized dataset is used for training. 
+**BLUE FOUNTAIN PEN REVIEW**
+Here is my review of the 28 lb perforated paper from the Perforated Paper Company with the blue spirulina (phycocyanin) fountain pen ink that I have formulated! 
+The ink is more saturated on the actual sheet (a few shades darker, actually), but this gives a good general idea of how it behaves on this paper. It shows some very modest water resistance, but care should still be taken to avoid exposing the pages to moisture.
 
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
-The following instructions will be provided in great detail, as they are intended for a broad audience and will
-allow to run a copy of <b>Tintype¶Text</b> on a local computer. Here is a link to an instructional video explaining the steps 1 through 8 described below: https://www.youtube.com/watch?v=FG9WUW6q3dI&list=PL8fAaOg_mhoEZkbQuRgs8MN-QSygAjdil&index=2.
+The following instructions will be provided in great detail, as they are intended for a broad audience and will allow to run a copy of PrintANotebook on a local computer. You can also view the YouTube version of the instructions at the following link: The Youtube link will be added once the video has been uploaded.
+   
+The instructions below are for Windows operating systems, but the code should run nicely on Linux and Mac-OS as well.
 
-The paths included in the code are formatted for Unix (Linux) operating systems (OS), so the following instructions 
-are for Linux OS environments.
-
-<b>Step 1</b>- Go to the command line in your working folder and install the <b>Atom</b> text editor to make editing the code easier:
+<b>Step 1</b>- Hold the "Shift" key while right-clicking in your working folder and select "Open PowerShell window here" to access the PowerShell in your working folder. Then, install <b>NumPy</b>  and <b>Pillow</b> (Required Python modules to generate the cover image) by entering the following command:
 ```
-sudo snap install atom --classic
+py -m pip install NumPy --upgrade Pillow
 ```
 
-<b>Step 2</b>- Create a virtual environment (called <i>env</i>) in your working folder:
-```
-python3 -m venv env
-```
+<b>Step 2</b>- You're now ready to use <b>PrintANotebook</b>! 🎉
 
-<b>Step 3</b>- Activate the <i>env</i> virtual environment <b>(you will need to do this step every time you use the Python code files)</b> 
-in your working folder:
-```
-source env/bin/activate
-```
-
-<b>Step 4</b>- Install <b>PyTorch</b> (Required Fastai library to convert images into a format usable for deep learning) using the following command (or the equivalent command found at https://pytorch.org/get-started/locally/ suitable to your system):
-```
-pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
-```
-
-<b>Step 5</b>- Install the <i>CPU-only</i> version of <b>Fastai</b> (Deep Learning Python library, the CPU-only version suffices for this application, as the character images are very small in size):
-```
-pip install fastai
-```
-
-<b>Step 6</b>- Install <b>OpenCV</b> (Python library for image segmentation):
-```
-pip install opencv-python
-```
-
-<b>Step 7</b>- Install <b>alive-Progress</b> (Python module for a progress bar displayed in command line):
-```
-pip install alive-progress
-```
-
-<b>Step 8</b>- Create the folder "OCR Raw Data" in your working folder:
-```
-mkdir "OCR Raw Data" 
-```
-<b>Step 9</b>- You're now ready to use <b>Tintype¶Text</b>! 🎉
 
 ## 🎈 Usage <a name="usage"></a>
-There are four different Python code files that are to be run in sequence. You can skip ahead to file 4 ("get_predictions.py") if you will be using one of the models in the Google Drive links above. You can find instructions for every Python file in the TintypeText - Typewriter Optical Character Recognition (OCR) playlist on my YouTube channel: https://www.youtube.com/playlist?list=PL8fAaOg_mhoEZkbQuRgs8MN-QSygAjdil.<br><br>
-<b>File 1: "create_rectangles.py"</b>- This Python code enables you to see the segmentation results (the green rectangles delimiting
-the individual characters on the typewritten image) and then write a ".txt" file with the correct labels for each rectangle. The mapping
-of every rectangle to a label will allow to generate a dataset of character images with their corresponding labels. The typewriter
-page images overlaid with the character rectangles are stored in the "Page image files with rectangles" folder, which is created
-automatically by the code.
 
-You might need to <b>alter the values</b> of the variables "<b>character_width</b>" (default value of 55 pixels for 8 1/2" x 11" typewritten pages 
-scanned at a resolution of 600 dpi) and "<b>spacer_between_characters</b>" (default value of 5 pixels), as your typewriter may have a different typeset than those of my typewriters (those two default parameters were suitable for both my <i>2021 Royal Epoch</i> and <i>1968 Olivetti Underwood Lettera 33</i> typewriters). Also, if your typewriter has a lot of ghosting (faint outline of the preceding character) or if the signal to noise ratio is elevated (because of high ink loading on the ribbon leading to lots of ink speckling on the page), the segmentation code might pick up the ghosting or noise as characters. As a result, you could then end up with staggered character rectangles. In the presence of dark typewritten text you should decrease the segmentation sensitivity (increase the number of non-white y pixels required for a given x coordinate in order for that x coordinate to be included in the segmentation). That is to say that on a fresh ribbon of ink, you should increase the value of 3 (illustrated below) to about 6 (results will vary based on your typewriter's signal to noise ratio) in the line 57 of "get_predictions.py" in order to avoid including unwanted noise in the character rectangles. 
-```
-x_pixels = np.where(line_image >= 3)[0] 
-```
-When your typewritten text gets fainter, change that digit back to 3 to make the segmentation more sensitive (to avoid omitting characters). These parameters ("character_width", "spacer_between_characters" and "line_image >= 3" should be adjusted in the same way in all the Python code files (except "train_model.py", where they are absent) to ensure consistent segmentation in all steps of the process.
+<b>Step 1</b> In the "Cover font TTF file" folder within your working folder, you need to have exactly one True Type Font file (.ttf) for the cover text font. When you set up your system, the "Baskerville" TTF file will be included in this folder by default. Similarly, another TTF font file needs to be included in the "Header and footer font TTF file" subfolder for the headings and page numbers (the "Baskerville" TTF file is also included in this folder by default). 
+ 
+<b>Step 2</b>- A JPEG image for the cover illustration in legal paper size and landscape format (4200 pixels in width and 2550 pixels in height) needs to be included in the working folder. Its file name needs to start with "Cover", so that the code may recognize it. You can find instructions on preparing such background images by viewing the following YouTube video (https://www.youtube.com/watch?v=xPY7dMcKfVY). A public domain background image by Karen Arnold is provided in the working folder, which you could replace with your own preferred image.
 
-![Image txt file processing](https://github.com/LPBeaulieu/TintypeText/blob/main/txt%20file%20example.jpg)<hr>
-The image above illustrates the format of the ".txt" file listing all of the character rectangle labels. In the first line, you can note that four of the characters are labeled as "@", which maps to the category "to be deleted". The three letters (C, X and I) have significant ink splattering and will not be included in the training data, as they are not representative of these characters. The fourth "@" on the first line corresponds to an artifact (some noise was above the filtering threshold and was picked up as a character). We also do not want to include it in the training data. The "lesser than" symbol highlighted in yellow on line 11 in the ".txt" file corresponds to an "empty" rectangle, which is mapped to the "space" category in the "Dataset" folder. The very last line of the typewriter scan image contains two typos (two characters overlaid with a hashtag symbol). They are represented by a "~" symbol in the ".txt" file on line 19. All the other character rectangles are represented by their own characters in the ".txt" file. 
+<b>Step 3</b>- With every file in its right place, it is now time to run the code! Start by holding the "Shift" key while right-clicking in your working folder, then select "Open PowerShell window here" to access the PowerShell in your working folder and enter the commands described below. The following figures will explain which arguments should be added after the Python code call in order to generate different types of notebooks. In all cases, you will need to pass in the width or thickness of a ream of 500 pages of the paper that you will be printing on, in inches and decimal form, but without units, after the "inches_per_ream_500_pages:" argument, which will allow the code to properly size the spine of the cover. For measurements in centimeters, use "cm_per_ream_500_pages:" instead.  Although the different arguments delimited by double quotes may be provided in any order, they must be separated from one another by a space, as in the examples below.
+
+![Figure 1]()<hr> <b>Figure 1.</b> For a notebook with dotted pages and page numbering on both left and right pages, the following command would be entered: 
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "dot_grid" 
+```
 <br><br>
-Importantly, <b>such ".txt" files should be created, modified and saved exclusively in basic text editors</b> (such as Text Editor in Ubuntu 20.04), as more elaborate word processors would include extra formatting information that would interfere with the correct mapping of the character rectangles to their labels in the ".txt" file.
 
-<b>Furthermore, the ".txt" files in the "Training&Validation Data" folder must have identical names to their corresponding JPEG images (minus the file extensions).</b> For example, the file "my_text.txt" would contain the labels corresponding to the raw scanned typewritten page JPEG image (without the character rectangles) named "my_text.jpg". The presence of hyphens in the file name is only necessary for JPEG files intended for OCR predictions (see below, file 4 "get_predictions.py"), although you could include some hyphens in every file name just as well.
+
+![Figure 2]()<hr> <b>Figure 2.</b> In order to add the same heading to both left and right pages, you would add the heading text, preceded by the "heading_text:" argument:
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "dot_grid"   "heading_text:Your Heading Text Here"
+```
+<br><br>
+
+![Figure 3]()<hr> <b>Figure 3.</b> Should you like the headings to be in the outer corners instead of being centered, you would pass in the additional argument "heading_corners":
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "dot_grid"   "heading_text:Your Heading Text Here" "heading_corners"
+```
+<br><br>
+
+![Figure 4]()<hr>
+<b>Figure 4.</b> In order to include different headings on left and right pages, enter the corresponding text as additional arguments, preceded by "heading_text_left:" and "heading_text_right:", respectively:
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "dot_grid"    "heading_text_left:Left Page Heading" "heading_text_right:Right Page Heading"
+```
+<br><br>
+
+
+![Figure 5.]()<hr>
+<b>Figure 5.</b> Should you only want headings on right-hand pages, enter the corresponding text as a single additional argument, preceded by "heading_text_right:". The same is true for headings only appearing on left-hand pages when passing in the "heading_text_left:" argument alone.
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "dot_grid"    "heading_text_right:Right Page Heading"
+```
+<br><br>
+
+
+![Figure 6]()<hr>
+<b>Figure 6.</b> Similarly, should you want page numbers only on right-hand pages (here framed in orange), enter the "page_numbers_right" argument instead of "page_numbers". The same could be done for page numbering only on left-hand pages by passing in the "page_numbers_left" argument instead of "page_numbers".
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers_right"  "inches_per_ream_500_pages:2.63" "dot_grid" 
+```
+<br><br>
+
+![Figure 7]()<hr>
+<b>Figure 7.</b> The default font size (75 pixels) and font color ("LightSlateGrey") of the headings may be changed by adding the desired font size after the "heading_font_size:" (without units) and color after the "heading_text_color:" (either RGB code or HTML color name) arguments, respectively. The same may be done for the page numbers, by specifying the desired values after the following arguments: "page_numbers_font_size:" (60 pixels by default) and "page_numbers_text_color:" ("LightSteelBlue" by default).
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here" "heading_font_size:90" "heading_text_color:Teal" "page_numbers_font_size:70" "page_numbers_text_color:SeaGreen"
+```
+<br><br>
+
+![Figure 8]()<hr>
+<b>Figure 8.</b> The default dot spacing (0.2 inch), diameter (5 pixels) and line width (1 pixel)  may also be changed to your preferred settings, by adding them in sequence after the "dot_grid:" argument, with colon dividers in-between. Moreover, the dot fill color and dot outline colors (both being "LightSlateGrey" by default) may be changed by adding the HTML color name or RGB code after the "dot_fill_color:" and "dot_outline_color:" arguments, respectively.
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "dot_grid:0.25:10:0" "heading_text:Your Heading Text Here" "heading_font_size:90" "heading_text_color:Teal" "page_numbers_font_size:70" "page_numbers_text_color:SeaGreen" "dot_fill_color:(143, 188, 143)"
+```
+<br><br>
+ 
+![Figure 9]()<hr>
+<b>Figure 9.</b> In order to specify a different number of pages than the default of 8 and another line spacing for the Table of Contents (TOC), simply pass in both preferred settings in sequence after the "toc_pages_spacing:" argument, with colon separators in-between, and the line spacing expressed in inches and in decimal form. In order to alter the line width of the TOC ruled lines (5 pixels by default), enter the desired value after the "toc_line_width:" argument.  To change the TOC heading font size, text color and text itself, add the desired parameters after the "toc_heading_font_size:" (75 pixels by default), "toc_heading_text_color:" ("LightSlateGrey" by default) and "toc_heading_text:" ("Contents" by default), respectively. Similarly, the "Pages" and "Subject" subheadings font sizes (both 60 pixels by default), text colors (each written in "LightSlateGrey" color by default) and text may be altered by entering your parameters of choice after the "toc_pages_font_size:" and "toc_subject_font_size:", "toc_pages_text_color:" and "toc_subject_text_color:" as well as "toc_pages_text:" and "toc_subject_text:" arguments, respectively. Finally, you may opt to remove the TOC altogether by specifying zero as the number of pages ("toc_pages_spacing:0"). Please keep in mind that the number of TOC pages needs to be an even number to ensure that the first of the numbered notebook pages lands on a right-hand page. For this reason, the code will automatically round up any inputted uneven pages to the next even numbers. Also, to make sure that the PDF document may be easily printed in duplex mode, additional notebook pages will automatically be added by the code if the total amount of pages (including the TOC) is not a multiple of four. 
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here" "toc_pages_spacing:6:0.3"  "toc_line_width:3" "toc_heading_text:Index" "toc_heading_font_size:90" "toc_heading_text_color:Teal" "toc_pages_text:Page" "toc_pages_font_size:75" "toc_pages_text_color:SeaGreen" "toc_subject_text:Topic" "toc_subject_font_size:75" "toc_subject_text_color:SeaGreen" "toc_line_color:(143, 188, 143)"
+```
+<br><br>
+
+
+![Figure 10]()<hr>
+<b>Figure 10.</b> Should you like to have the dot grid pattern only on the right pages, and blank pages on left-hand pages, you would need to pass in the argument "dot_grid_right" instead of "dot_grid". The reverse outcome would require you to enter the "dot_grid_left" argument instead of "dot_grid".
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers_right"  "inches_per_ream_500_pages:2.63" "dot_grid_right"
+```
+<br><br>
+
+
+![Figure 11]()<hr>
+<b>Figure 11.</b> In order to have college ruled lined pages (9/32 inch line spacing) on the left alternating with dot grids on right-hand pages, you would need to pass in the arguments "college_ruled_left" and "dot_grid_right". The inverse result could also be acheived by entering "college_ruled_right" and "dot_grid_left", and it would also be possible to have college ruled lines on both pages by only passing in "college_ruled". The lower margins will be adjusted automatically such that the last horizontal dot grid line matches up as well as possible with the last ruled line on the page.
+Finally, the default line width of 5 px and "Gainsboro" line color could be changed by providing the selected parameters after the "line_width:" and "line_color:" arguments, respectively, where either the HTML color name or RGB code may be specified for the line color.
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "college_ruled_left" "dot_grid_right" "line_width:4" "line_color:BurlyWood"
+```
+<br><br>
+
+
+![Figure 12]()<hr>
+<b>Figure 12.</b> For wide ruled pages (11/32 inch line spacing), the "wide_ruled" argument would need to be passed in. Furthermore, ruled pages with custom line spacing may also be generated by entering "custom_ruled:" followed by the line spacing in inches and in decimal format. Of note, unlike dot grid formats where the distances in-between dots are measured relative to the dot centers, line spacing is calculated as the actual space in-between the lines (excluding the pixels of the lines themselves).
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "custom_ruled_left:0.2" "dot_grid_right:0.2"
+```
+<br><br>
+
+![Figure 13]()<hr>
+<b>Figure 13.</b> Should you want to have dot grids on right-hand pages alternating with graph paper on the left pages, you would need to pass in the arguments "dot_grid_right" and "graph_paper_left:". The latter argument ends with a colon, which is then followed by the number of squares per inch, a colon divider, the number of squares in-between every thicker line, another colon, and finally the width ratio between the thicker line and the regular line having a default width of 5 px. The reverse could also be done by entering "dot_grid_left" as well as "graph_paper_right:", with the same information as above. It would also be possible to have graph paper on both pages by only passing "graph_paper:", with the same abovementioned parameters". Once again, the lower margins will be adjusted automatically such that the last horizontal dot grid line matches up as well as possible with the horizontal graph paper line on the page. 
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "graph_paper_left:5:5:2" "dot_grid_right"
+```
+<br><br>
+
+![Figure 14]()<hr>
+<b>Figure 14.</b> The default graph paper line width of 5 px and "Gainsboro" line color could be changed by providing the selected parameters after the "graph_line_width:" and "graph_line_color:" arguments, respectively, where either the HTML color name or RGB code may be specified for the graph line color.
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "graph_paper_left:5:5:2" "graph_line_width:3" "graph_line_color:rgb(172, 231, 248)" "dot_grid_right"
+```
+<br><br>
+
+![Figure 15]()<hr>
+<b>Figure 15.</b> For simple graph paper without bold lines, simply omit the two last parameters after the number of squares per inch. Besides that, you might wish to extend the lower border (0.6 inch by default) in order to include more lines on the page. This could be done by passing in the number of inches (in decimal form, without units) from the bottom of the page where the lowest line could be drawn, after the "bottom_margin:" argument. You could also alter the default left page left margin and right page right margin of 0.25 inch, as well as the top margin of 0.95 inch, by entering the desired measurements after the "left_margin:", "right_margin:" and "top_margin:" arguments, respectively.
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "graph_paper_left:5" "graph_line_width:3" "graph_line_color:rgb(172, 231, 248)" "dot_grid_right" "bottom_margin:0.55" "left_margin:0.4" "right_margin:0.4"
+```
+<br><br>
+
+![Figure 16]()<hr> 
+<b>Figure 16.</b> Other page combinations can be generated, such as graph paper and blank pages or graph paper and ruled lines, similarly to what was done above. It is also possible to alter the header and footer margins (which are by default 0.6 inch from the top and automatically vertically centered in the bottom of the page, respectively), by providing the selected measurements after the corresponding arguments "heading_top_margin:" and "page_numbers_bottom_margin:". Note that the horizontal alignment of the headings may be shifted through the inclusion of spaces in the arguments that are passed into the Python code.  
+<br>
+```
+py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers"  "inches_per_ream_500_pages:2.63" "heading_text_left:Sketch No.:        " "heading_text_right:Date:                " "graph_paper_left:5" "graph_line_width:3" "graph_line_color:rgb(172, 231, 248)" "college_ruled_right" "top_margin:1" "bottom_margin:0.5" "heading_top_margin:0.65"  "page_numbers_bottom_margin:8.1" "heading_font_size:100" "page_numbers_font_size:70"
+```
+<br><br>
+
+![Figure 17]()<hr> 
+<b>Figure 17.</b> Different fonts for the headings and page numbers can be used simply by changing the True Font File (.ttf) within the "Header and footer font TTF file" folder. No further arguments are required when running the Python code. The image above illustrates this, as the same arguments as those of Figure 16 were passed in, when running the Python code with the satisfy font (https://fonts.google.com/specimen/Satisfy?query=satisfy).
+<br><br>
+
+![Figure 18]()<hr> 
+<b>Figure 18.</b> Custom Designs may also be incorporated in your notebook, such as this daily planner journal (which is also featured in the thumbnail image of this Github page). Notice in the Python call below that the TOC headings and subheadings have been removed, leaving behind regular dot grid pages without page numbers. You could use these to write your bullet journal key and index, as well as monthly spreads, before the start of the daily planner numbered pages themselves. Should you want to have daily planner pages both on the left and right-hand pages, you would then pass in both "custom_template_left_page" and "custom_template_right_page". Please refer to the  PDF document entitled "Exporting Custom Designs.pdf" for more on how to create and export custom designs in LibreOffice Draw.   
+<br>
+```
+py -m printanotebook.py "title:Winter 2023 Daily Planners" "author:Louis-Philippe Bonhomme-Beaulieu" "number_of_pages:180" "page_numbers_right"  "inches_per_ream_500_pages:2.63" "heading_text_left:Daily Planner" "custom_template_left_page" "dot_grid_right" "toc_pages_spacing:8" "toc_subject_text:" "toc_pages_text:" "toc_heading_text:" "top_margin:0.8" "bottom_margin:0.5" "right_margin:0.5" "cover_box_color:rgb(150, 63, 92)" "cover_text_color:White"
+```
+<br><br><br>
+
+<h3><b>Printing Your Notebook</b></h3>
+<p>In order to print the notebook sheets, each consisting of two pages per side of a sheet of 8 1/2" by 11" paper, simply print them in landscape duplex mode with the "flip on short side" option. It should be noted that the page numbering is already in booklet format, so as to facilitate the printing process and book assembly.</p>
+
+<p>For <b>instructions on how to generate and print the notebook covers</b>, I would direct you to my other Github repository PrintABook, which lets you generate books in printable format from Project Gutenberg novel text files. The code is the same when it comes to making the book covers, so please refer to Figure 3 of the PrintABook Readme page for the list of arguments pertaining to cover generation, and to Step 8 onwards of the "Usage" section for more on how to print the notebook covers. Also, please refer to this Youtube instructions video on how to prepare your own JPEG images for cover creation: https://www.youtube.com/watch?v=xPY7dMcKfVY.</b>
 
 <br>
- <b>File 2: "create_dataset.py"</b>- This code will crop the individual characters in the same way as the "create_rectangles.py" code,
- and will then open the ".txt" file containing the labels in order to create the dataset. Each character image will be sorted in its
- label subfolder within the "Dataset" folder, which is created automatically by the code. <br><br>
- A good practice <b>when creating a dataset</b> is to make the ".txt" file and then run the "create_dataset.py" code <b>one page at a time</b> (only one JPEG image and its corresponding ".txt" file at a time in the "Training&Validation Data" folder) to validate that the labels in the ".txt" file line up with the character rectangles on the typewritten text image. Such a validation step involves opening every "Dataset" subfolder and ensuring that every image corresponds to its subfolder label (pro tip: select the icon display option in the folder in order to display the image thumbnails, which makes the validation a whole lot quicker). You will need to delete the "Dataset" folder in between every page, otherwise it will add the labels to the existing ones within the subfolders. This makes it more manageable to correct any mistakes in the writing of the ".txt" files. Of note, some of the spaces are picked up as characters and framed with rectangles. You need to label those spaces with a lesser-than sign ("<"). Here is the list of symbols present in the ".txt" files mapping to the different characters rectangles:
-  
-  - <b>"<"</b>: "blank" character rectangle, which corresponds to a space. These character images are stored in the "space" subfolder within the "Dataset" folder.
-  - <b>"~"</b>: "typo" character rectangle (any character overlaid with "#"). These character images are stored in the "empty" subfolder within the "Dataset" folder. 
-  - <b>"@"</b>: "to be deleted" character rectangle (any undesired artifact or typo that wasn't picked up while typing on the typewriter). The 
-    "to be deleted" subfolder (within the "Dataset" folder) and all its contents is automatically deleted and the characters labeled with "@" in the ".txt" file will be absent
-    from the dataset, to avoid training on this erroneous data.
-  - All the other characters in the ".txt" files are the same as those that you typed on your typewriter. The character images are stored in subfolders within the "Dataset" folder bearing the character's name (e.g. "a" character images are stored in the subfolder named "a").
- 
-  <b>Once you're done validating</b> the individual ".txt" files, you can delete the "Dataset" folder once more, add <b>all of the ".txt" files along with their corresponding JPEG images</b> to the "Training&Validation Data" folder and run the "create_dataset.py" code to get your complete dataset! 
-  
-![Image folder tree structure](https://github.com/LPBeaulieu/TintypeText/blob/main/Folder%20tree%20structure%20image.jpg)<hr>
-The image above shows the folder tree structure of your working folder (above), along with the label subfolders within the "Dataset" folder (below).
- 
-  <br><b>File 3: "train_model.py"</b>- This code will train a convoluted neural network deep learning model from the labeled character images 
-  within the "Dataset" folder. It will also provide you with the accuracy of the model in making OCR predictions, which will be displayed
-  in the command line for every epoch (run through the entire dataset). The default hypeparameters (number of epochs=3, batch size=64, 
-  learning rate=0.005, kernel size=5) were optimal and consistently gave OCR accuracies above 99.8%, provided a good-sized dataset is used (above 25,000 characters).  
-  In my experience with this project, varying the value of any hyperparameter other than the kernel size did not lead to significant variations in accuracy.
-  As this is a simple deep learning task, the accuracy relies more heavily on having good quality segmentation and character images that 
-  accurately reflect those that would be found in text. Ideally, some characters would be typed with a fresh typewriter ribbon and others with an old one,
-  to yield character images of varying boldness, once again reflecting the irregularities normally observed when using a typewriter.
-  
-  When you obtain a model with good accuracy, you should rename it and do a backup of it along with the "Dataset" folder on which it was trained.
-  If you do change the name of the model file, you also need to update its name in the line 174 of "get_predictions.py":
-  ```
-  learn = load_learner(cwd + '/your_model_name')
-  ```
-  <br><b>File 4: "get_predictions.py"</b>- This code will perform OCR on JPEG images of scanned typewritten text (at a resolution of 600 dpi)
-  that you will place in the folder "OCR Raw Data". 
-  
-  <b>Please note that all of the JPEG file names in the "OCR Raw Data" folder must contain at least one hyphen ("-") in order for the code
-  to properly create subfolders in the "OCR Predictions" folder. These subfolders will contain the rich text format (RTF) OCR conversion documents.</b> 
-  
-  The reason for this is that when you will scan a multi-page document in a multi-page scanner, you will provide your scanner with a file root name (e.g. "my_text-") and the scanner will number them automatically (e.g."my_text-.jpg", "my_text-0001.jpg", "my_text-0002.jpg", "my_text-"0003.jpg", etc.) and the code would then label the subfolder within the "OCR Predictions" folder as "my_text". The OCR prediction results for each page will be added in sequence to the "my_text.rtf" file within the "my_text" subfolder of the "OCR Predictions" folder. Should you ever want to repeat the OCR prediction for a set of JPEG images, it would then be important to remove the "my_text" subfolder before running the "get_predictions.py" code once more, in order to avoid appending more text to the existing "my_text.rtf" file.
 
-If you changed the name of your deep learning model, or if you are using one of the models that I trained, you will to update the model name within the "get_predictions.py" code. That is to say that you will need to change "typewriter_OCR_cnn_model" for the name of your model in line 174 of "get_predictions.py":
-               
-```              
-learn = load_learner(cwd + '/typewriter_OCR_cnn_model')
-```
-               
-As mentioned above, since fresh typewriter ink ribbons lead to darker text and more ink speckling on the page, in the presence of dark typewritten text you should decrease the segmentation sensitivity (increase the number of non-white y pixels required for a given x coordinate in order for that x coordinate to be included in the segmentation). That is to say that on a fresh ribbon of ink, you should increase the value of 3 (illustrated below) to about 6 (results will vary based on your typewriter's signal to noise ratio) in the line 56 of "get_predictions.py" in order to avoid including unwanted noise in the character rectangles. 
-```
-x_pixels = np.where(line_image >= 3)[0] 
-```
-When your typewritten text gets fainter, change that digit back to 3 to make the segmentation more sensitive (to avoid omitting characters).
 
-        
-  <br><b>And that's it!</b> You're now ready to convert your typewritten manuscript into digital format! You can now type away at the cottage or in the park without worrying about your laptop's battery life 
-  and still get your document polished up in digital form in the end! 🎉📖
+![Figure 19]()<hr> 
+<b>Figure 19.</b> The image above shows the tools needed to add the cover to your book. Use scissors or other more precise cutting tools to remove the excess cardstock, while leaving the white trim, as shown in the image. There is an extra 1/64 inch (or 0.5 mm) of white space where you need to cut along the background, so you don't need to cut too close to the background on the leftover cardstock. A pencil will be used later to figure out where to fold the cover on either side of the spine. A bone folder tool may be useful when folding, but is not strictly necessary. A flat-tip paintbrush will help you apply the PVA glue more precisely. 
+<br><br><br>
+
+
+![6-Tracing Spine Outline](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/2-Drawing%20the%20spine%20contour.jpg)<hr> 
+<b>Figure 20.</b> Use the pencil to trace the outline of the dark spine rectangle on the back of the cardstock cover, while holding it up against a light source to see through it. This will enable you to line up the ruler and crease the paper to get the folds on the spine. 
+<br><br><br>
+
+![10-Folding the Spine](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/2-Placing%20the%20ruler.jpg)<hr> 
+<b>Figure 21.</b> Lay the ruler about 1/64 - 1/32 inch (0.5 - 1 mm) on the outer side of the pencil line, and carefully lift the other side of the cardstock to make a fold on one side of the spine. You can use a bone folder to make the fold crisper afterwards. 
+<br><br><br>
+
+![10-Folding the Spine](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/2-Folding%20the%20cover.jpg)<hr> 
+<b>Figure 22.</b> Be vigilant when folding covers printed with laser toner, which tends to flake off when rubbed. If possible, try to fold right before the edge to avoid scraping the toner, as shown in the next image. Furthermore, I recommend using inkjet printers to print the spines of books with more than around 200 pages (using 20 lb 8 1/2" x 11" copy paper), as thicker books will result in the toner on the spine to crack when being opened, thus reducing the legibility of the spine text. When printing book covers with inkjet printers, you would need to apply a sealer to make the cover waterproof and increase its durability. <br><br><br>
+
+![7-First Fold Result](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/3-First%20fold%20result.jpg)<hr>
+<b>Figure 23.</b> Here are the results for the first fold. Note that the fold is right before the edge of the spine dark rectangle. Repeat the procedure for the other fold. 
+<br><br><br>
+
+![10-Measure "cover_extra_cm"](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/6-Measure%20cover_extra_cm.jpg)<hr> 
+<b>Figure 24.</b> This is a good time to place the bound pages in your folded cover and ensure that the sizing is adequate. If you won't be using a guillotine stack page cutter to even out any discrepancies, you might want to print your cover again with some adjustments made to its page width. Simply measure the length of the overhanging bound pages relative to the cover (either in inches or centimeters, in decimal form) and enter that number as an additional parameter (preceded by "cover_extra_inches:" or "cover_extra_cm:" when running the Python code. For example, if the bound pages are 2 mm longer than the cover on both sides of the book, you would then enter "cover_extra_cm:0.2" as an additional argument. Should the measurements be uneven on both sides, it is likely that you didn't fold the cover exactly the same distance from the spine on both sides and you could then just take the average between the two measurements and input it as above.  
+<br><br>
+
+
+![11-Apply glue onto the spine](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/7-Applying%20glue%20on%20spine.jpg)<hr> 
+<b>Figure 25.</b> Apply some PVA glue on the back side of the spine with your paintbrush and then add another coat of glue onto the spine of the bound pages to ensure good contact between cover and pages. 
+<br><br><br>
+
+
+![11-Apply glue onto the spine](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/8-Assembling%20the%20book.jpg)<hr> 
+<b>Figure 26.</b> Line up the bound pages on top of the glue on the cover, using the folds to guide you. Carefully adjust the alignment before applying too much downwards pressure on the pages. Then fold the cover pages around the book and gently tap the spine on your working surface. Smooth the spine with your fingers and place the finished book under some other books as done previously to ensure that the book dries flat. 
+<br><br><br>
+
+
+![12-Stack of bound books](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/10-Stack%20of%20books.jpg)<hr>
+<b>Figure 27.</b> Here's a display of my first handbound books! There's certainly room for improvement, but given that I used perforated paper with perforations in the middle of the 8 1/2" x 11" pages that were somewhat uneven, I think that the books are quite decent! For best results, I would recommend carefully lining up the pages so that the spine is perfectly flat and then trimming the margins using a guillotine stack page cutter (which I didn't have access to) after your project is done.
+<br><br><br>
+
+
+![13-Stack of bound books](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/11-Book%20Reading%20Experience.jpg)<hr> 
+<b>Figure 28.</b> Most importantly, the resulting book reads like... well a book!
+<br><br><br>
+
+
+<b>And that's it!</b> You're now ready to convert your favorite Project Gutenberg book TXT files into your very own printable books formatted just the way you like them! Now dollop some glue onto the spine, slap on the cover, let it dry under some books and you'll soon be able to curl up around your handcrafted book! 🎉📖
   
   
 ## ✍️ Authors <a name = "author"></a>
 - 👋 Hi, I’m Louis-Philippe!
 - 👀 I’m interested in natural language processing (NLP) and anything to do with words, really! 📝
 - 🌱 I’m currently reading about deep learning (and reviewing the underlying math involved in coding such applications 🧮😕)
-- 📫 How to reach me: By e-mail! LPBeaulieu@gmail.com 💻
+- 📫 How to reach me: By e-mail! louis.philippe.bonhomme.beaulieu.1@gmail.com 💻
 
 
 ## 🎉 Acknowledgments <a name = "acknowledgments"></a>
+- <b>Shout out to the talented Rajesh Misra for the gorgeous illustration</b> featured on the cover (https://www.publicdomainpictures.net/en/view-image.php?image=214080&picture=floral-pattern-background-843) 
 - Hat tip to [@kylelobo](https://github.com/kylelobo) for the GitHub README template!
-
 
 
 
