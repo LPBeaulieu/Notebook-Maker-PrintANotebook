@@ -189,7 +189,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <br><br>
 
 ![Figure 18](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Graph%20paper%20left%20(5)%2C%20line%20width%203%20px%2C%20blue%20lines%2C%20%20college%20ruled%20right%2C%20larger%20header%20and%20footer%2C%20altered%20margins%2C%20different%20font.jpg)<hr> 
-<b>Figure 18.</b> Different fonts for the headings and page numbers can be used simply by changing the True Font File (.ttf) within the "Header and footer font TTF file" folder. No further arguments are required when running the Python code. The image above illustrates this, as the same arguments as those of Figure 16 were passed in, when running the Python code with the satisfy font (https://fonts.google.com/specimen/Satisfy?query=satisfy).
+<b>Figure 18.</b> Different fonts for the headings and page numbers can be used simply by changing the True Font File (.ttf) within the "Header and footer font TTF file" folder. No further arguments are required when running the Python code. The image above illustrates this, as the same arguments as those of Figure 17 were passed in, when running the Python code with the satisfy font (https://fonts.google.com/specimen/Satisfy?query=satisfy).
 <br><br><br>
 
 ![Figure 19](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Daily%20Planner.jpg)<hr> 
