@@ -199,62 +199,19 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 ```
 py -m printanotebook.py "title:Winter 2023 Daily Planners" "author:Louis-Philippe Bonhomme-Beaulieu" "number_of_pages:180" "page_numbers_right"  "inches_per_ream_500_pages:2.63" "heading_text_left:Daily Planner" "custom_template_left_page" "dot_grid_right" "toc_pages_spacing:8" "toc_subject_text:" "toc_pages_text:" "toc_heading_text:" "top_margin:0.8" "bottom_margin:0.5" "right_margin:0.5" "cover_box_color:rgb(150, 63, 92)" "cover_text_color:White"
 ```
-<br><br><br>
+<br><br>
 
 <h3><b>Printing Your Notebook</b></h3>
 <p>In order to print the notebook sheets, each consisting of two pages per side of a sheet of 8 1/2" by 11" paper, simply print them in landscape duplex mode with the "flip on short side" option. It should be noted that the page numbering is already in booklet format, so as to facilitate the printing process and book assembly.</p>
 
 <p>For <b>instructions on how to generate and print the notebook covers</b>, I would direct you to my other Github repository PrintABook, which lets you generate books in printable format from Project Gutenberg novel text files. The code is the same when it comes to making the book covers, so please refer to Figure 3 of the PrintABook Readme page for the list of arguments pertaining to cover generation, and to Step 8 onwards of the "Usage" section for more on how to print the notebook covers. Also, please refer to this Youtube instructions video on how to prepare your own JPEG images for cover creation: https://www.youtube.com/watch?v=xPY7dMcKfVY.</b>
-
-<br>
-
-
-![Figure 19]()<hr> 
-<b>Figure 19.</b> The image above shows the tools needed to add the cover to your book. Use scissors or other more precise cutting tools to remove the excess cardstock, while leaving the white trim, as shown in the image. There is an extra 1/64 inch (or 0.5 mm) of white space where you need to cut along the background, so you don't need to cut too close to the background on the leftover cardstock. A pencil will be used later to figure out where to fold the cover on either side of the spine. A bone folder tool may be useful when folding, but is not strictly necessary. A flat-tip paintbrush will help you apply the PVA glue more precisely. 
-<br><br><br>
-
-
-![6-Tracing Spine Outline](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/2-Drawing%20the%20spine%20contour.jpg)<hr> 
-<b>Figure 20.</b> Use the pencil to trace the outline of the dark spine rectangle on the back of the cardstock cover, while holding it up against a light source to see through it. This will enable you to line up the ruler and crease the paper to get the folds on the spine. 
-<br><br><br>
-
-![10-Folding the Spine](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/2-Placing%20the%20ruler.jpg)<hr> 
-<b>Figure 21.</b> Lay the ruler about 1/64 - 1/32 inch (0.5 - 1 mm) on the outer side of the pencil line, and carefully lift the other side of the cardstock to make a fold on one side of the spine. You can use a bone folder to make the fold crisper afterwards. 
-<br><br><br>
-
-![10-Folding the Spine](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/2-Folding%20the%20cover.jpg)<hr> 
-<b>Figure 22.</b> Be vigilant when folding covers printed with laser toner, which tends to flake off when rubbed. If possible, try to fold right before the edge to avoid scraping the toner, as shown in the next image. Furthermore, I recommend using inkjet printers to print the spines of books with more than around 200 pages (using 20 lb 8 1/2" x 11" copy paper), as thicker books will result in the toner on the spine to crack when being opened, thus reducing the legibility of the spine text. When printing book covers with inkjet printers, you would need to apply a sealer to make the cover waterproof and increase its durability. <br><br><br>
-
-![7-First Fold Result](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/3-First%20fold%20result.jpg)<hr>
-<b>Figure 23.</b> Here are the results for the first fold. Note that the fold is right before the edge of the spine dark rectangle. Repeat the procedure for the other fold. 
-<br><br><br>
-
-![10-Measure "cover_extra_cm"](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/6-Measure%20cover_extra_cm.jpg)<hr> 
-<b>Figure 24.</b> This is a good time to place the bound pages in your folded cover and ensure that the sizing is adequate. If you won't be using a guillotine stack page cutter to even out any discrepancies, you might want to print your cover again with some adjustments made to its page width. Simply measure the length of the overhanging bound pages relative to the cover (either in inches or centimeters, in decimal form) and enter that number as an additional parameter (preceded by "cover_extra_inches:" or "cover_extra_cm:" when running the Python code. For example, if the bound pages are 2 mm longer than the cover on both sides of the book, you would then enter "cover_extra_cm:0.2" as an additional argument. Should the measurements be uneven on both sides, it is likely that you didn't fold the cover exactly the same distance from the spine on both sides and you could then just take the average between the two measurements and input it as above.  
 <br><br>
 
-
-![11-Apply glue onto the spine](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/7-Applying%20glue%20on%20spine.jpg)<hr> 
-<b>Figure 25.</b> Apply some PVA glue on the back side of the spine with your paintbrush and then add another coat of glue onto the spine of the bound pages to ensure good contact between cover and pages. 
+![Figure 19]()<hr> 
+<b>Figure 19.</b> Other custom designs may also be included in your notebook, such as this weekly spread template that is included in the pet journal that I have created for my budgies. In this case the Python script was only used to generate the journal cover, as there were too many custom journal sections for the code to handle them nicely. It just goes to show that even if you were only to use the code to generate customized notebook covers, it would still be quite useful! You can find all of my custom designs in my Google Drive at the following link: (https://drive.google.com/drive/folders/1r1BLipQujz22kFHMnLVYw_qzv5OBq9cv?usp=sharing).
 <br><br><br>
 
-
-![11-Apply glue onto the spine](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/8-Assembling%20the%20book.jpg)<hr> 
-<b>Figure 26.</b> Line up the bound pages on top of the glue on the cover, using the folds to guide you. Carefully adjust the alignment before applying too much downwards pressure on the pages. Then fold the cover pages around the book and gently tap the spine on your working surface. Smooth the spine with your fingers and place the finished book under some other books as done previously to ensure that the book dries flat. 
-<br><br><br>
-
-
-![12-Stack of bound books](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/10-Stack%20of%20books.jpg)<hr>
-<b>Figure 27.</b> Here's a display of my first handbound books! There's certainly room for improvement, but given that I used perforated paper with perforations in the middle of the 8 1/2" x 11" pages that were somewhat uneven, I think that the books are quite decent! For best results, I would recommend carefully lining up the pages so that the spine is perfectly flat and then trimming the margins using a guillotine stack page cutter (which I didn't have access to) after your project is done.
-<br><br><br>
-
-
-![13-Stack of bound books](https://github.com/LPBeaulieu/Book-Generator-PrintABook/blob/main/Github%20Page%20Images/11-Book%20Reading%20Experience.jpg)<hr> 
-<b>Figure 28.</b> Most importantly, the resulting book reads like... well a book!
-<br><br><br>
-
-
-<b>And that's it!</b> You're now ready to convert your favorite Project Gutenberg book TXT files into your very own printable books formatted just the way you like them! Now dollop some glue onto the spine, slap on the cover, let it dry under some books and you'll soon be able to curl up around your handcrafted book! 🎉📖
+<b>Well there you have it!</b> You can now generate your own customized notebooks and print the notebook pages in your favorite color! Now dollop some glue onto the spine, slap on the cover, let it dry under some books and you'll soon be able to lay down your most treasured thoughts in your personalized notebook! 🎉📖
   
   
 ## ✍️ Authors <a name = "author"></a>
