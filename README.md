@@ -105,7 +105,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <br><br>
 
 ![Figure 8](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Dot%20grid%20on%20both%20pages%20with%20same%20headings%20on%20both%20pages%2C%20different%20font%20size%20and%20color.jpg)<hr>
-<b>Figure 8.</b> The default font size (75 pixels) and font color ("LightSlateGrey") of the headings may be changed by adding the desired font size and color after the following arguments: "heading_font_size:" (without units) and "heading_text_color:" (either RGB code or HTML color name), respectively. The same may be done for the page numbers, by specifying the desired values after the following arguments: "page_numbers_font_size:" (60 pixels by default) and "page_numbers_text_color:" ("LightSteelBlue" by default).
+<b>Figure 8.</b> The default font size (75 pixels) and font color ("LightSlateGrey") of the headings may be changed by adding the desired font size and color after the following arguments: "heading_font_size:" (without units) and "heading_text_color:" (either RGB code or HTML color name), respectively. The same may be done for the page numbers, by specifying the desired values after these arguments: "page_numbers_font_size:" (60 pixels by default) and "page_numbers_text_color:" ("LightSteelBlue" by default), respectively.
 <br>
 ```
 py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here" "heading_font_size:90" "heading_text_color:Teal" "page_numbers_font_size:70" "page_numbers_text_color:SeaGreen"
