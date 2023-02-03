@@ -211,7 +211,7 @@ py -m printanotebook.py "title:Winter 2023 Daily Planners" "author:Louis-Philipp
 <br><br><br>
 
 ![Figure 21](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/PrintANotebook%20Results.jpg)<hr> 
-<b>Figure 21.</b> Here is what the finished bound notebooks using 28 lb perforated paper from www.perforatedpaper.com look like!
+<b>Figure 21.</b> Here is what the finished bound notebooks look like, using 28 lb perforated paper from www.perforatedpaper.com!
 <br><br><br>
 
 <b>Well there you have it!</b> You can now generate your own customized notebooks and print the notebook pages in your favorite color! Now dollop some glue onto the spine, slap on the cover, let it dry under some books and you'll soon be able to lay down your most treasured thoughts in your personalized notebook! 🎉📖
