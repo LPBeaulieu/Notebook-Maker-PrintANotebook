@@ -21,13 +21,13 @@ You can even select your own designs to create some nifty planners! <b>PrintANot
 
 
 ## 📝 Table of Contents
-- [Dependencies / Limitations](#limitations)
+- [Limitations](#limitations)
 - [Getting Started](#getting_started)
 - [Usage](#usage)
 - [Author](#author)
 - [Acknowledgments](#acknowledgments)
 
-## ⛓️ Dependencies / Limitations <a name = "limitations"></a>
+## ⛓️ Limitations <a name = "limitations"></a>
 The code for cover image generation was optimized on notebooks having at least 100 pages (of 20 lb bond paper). However, I typically generate notebooks having a total of around 200 pages, and print them on 28 lb bond perforated paper from the Perforated Paper company, which works wonderfully with my homemade biodegradable phycocyanin fountain pen ink (https://www.linkedin.com/feed/update/urn:li:activity:7027151841851265024/), which lends itself very nicely to writing on both sides of the sheet of paper with minimal bleeding and ghosting. Moreover, the perforations of this paper are quite precise, with only slight spine sanding being required in order to craft professional looking notebooks. While I’m not affiliated with this company in any way, I find that their paper is very smooth and gives good results when binding books. They also sell some 24 lb bond perforated paper in cream color. Check them out at www.perforatedpaper.com!
 
 ![Figure 1](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Phycocyanin%20Ink%20Review%20Github%20Image.jpg)<hr> <b>Figure 1.</b> Here is my review of the 28 lb perforated paper from the Perforated Paper company with the blue spirulina (phycocyanin) fountain pen ink that I have formulated! The ink is more saturated on the actual sheet (a few shades darker, actually), but this gives a good general idea of how it behaves on this paper. It shows some very modest water resistance, but care should still be taken to avoid exposing the pages to moisture.
