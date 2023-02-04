@@ -59,7 +59,7 @@ py -m pip install NumPy --upgrade Pillow
 ![Figure 2](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Dot%20grid%20on%20both%20pages.jpg)<hr> <b>Figure 2.</b> For a notebook with dotted pages and page numbering on both left and right pages, the following command would be entered, and you would need to replace "2.63" by the actual width measurement of the ream of 500 pages that you will be printing on: 
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" 
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" 
 ```
 <br><br>
 
@@ -67,14 +67,14 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 ![Figure 3](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Dot%20grid%20on%20both%20pages%20with%20same%20headings%20on%20both%20pages.jpg)<hr> <b>Figure 3.</b> In order to add the same heading to both left and right pages, you would add the heading text, preceded by the "heading_text:" argument:
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here"
 ```
 <br><br>
 
 ![Figure 4](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Dot%20grid%20on%20both%20pages%20with%20same%20headings%20on%20both%20pages%2C%20in%20corners.jpg)<hr> <b>Figure 4.</b> Should you like the headings to be in the outer corners instead of being centered, you would pass in the additional argument "heading_corners":
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here" "heading_corners"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here" "heading_corners"
 ```
 <br><br>
 
@@ -82,7 +82,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 5.</b> In order to include different headings on left and right pages, enter the corresponding text as additional arguments, preceded by "heading_text_left:" and "heading_text_right:", respectively:
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text_left:Left Page Heading" "heading_text_right:Right Page Heading"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text_left:Left Page Heading" "heading_text_right:Right Page Heading"
 ```
 <br><br>
 
@@ -91,7 +91,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 6.</b> Should you only want headings on right-hand pages, enter the corresponding text as a single additional argument, preceded by "heading_text_right:". The same is true for headings only appearing on left-hand pages when passing in the "heading_text_left:" argument alone.
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text_right:Right Page Heading"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text_right:Right Page Heading"
 ```
 <br><br>
 
@@ -100,7 +100,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 7.</b> Similarly, should you want page numbers only on right-hand pages (here framed in orange), enter the "page_numbers_right" argument instead of "page_numbers". The same could be done for page numbering only on left-hand pages by passing in the "page_numbers_left" argument instead of "page_numbers".
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers_right" "inches_per_ream_500_pages:2.63" "dot_grid" 
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers_right" "inches_per_ream_500_pages:2.63" "dot_grid" 
 ```
 <br><br>
 
@@ -108,7 +108,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 8.</b> The default font size (75 pixels) and font color ("LightSlateGrey") of the headings may be changed by adding the desired font size and color after the following arguments: "heading_font_size:" (without units) and "heading_text_color:" (either RGB code or HTML color name), respectively. The same may be done for the page numbers, by specifying the desired values after these arguments: "page_numbers_font_size:" (60 pixels by default) and "page_numbers_text_color:" ("LightSteelBlue" by default), respectively.
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here" "heading_font_size:90" "heading_text_color:Teal" "page_numbers_font_size:70" "page_numbers_text_color:SeaGreen"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here" "heading_font_size:90" "heading_text_color:Teal" "page_numbers_font_size:70" "page_numbers_text_color:SeaGreen"
 ```
 <br><br>
 
@@ -116,7 +116,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 9.</b> The default dot spacing (0.2 inch), diameter (5 pixels) and line width (1 pixel) may also be changed to your preferred settings, by adding them in sequence after the "dot_grid:" argument, with colon dividers in-between. Moreover, the dot fill color and dot outline colors (both being "LightSlateGrey" by default) may be changed by adding the HTML color name or RGB code after the "dot_fill_color:" and "dot_outline_color:" arguments, respectively.
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid:0.25:10:0" "heading_text:Your Heading Text Here" "heading_font_size:90" "heading_text_color:Teal" "page_numbers_font_size:70" "page_numbers_text_color:SeaGreen" "dot_fill_color:(143, 188, 143)"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid:0.25:10:0" "heading_text:Your Heading Text Here" "heading_font_size:90" "heading_text_color:Teal" "page_numbers_font_size:70" "page_numbers_text_color:SeaGreen" "dot_fill_color:(143, 188, 143)"
 ```
 <br><br>
  
@@ -124,7 +124,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 10.</b> In order to specify a different number of pages than the default of 8 and another line spacing for the Table of Contents (TOC), simply pass in both preferred settings in sequence after the "toc_pages_spacing:" argument, with colon separators in-between, and the line spacing expressed in inches and in decimal form. In order to alter the line width of the TOC ruled lines (5 pixels by default), enter the desired value after the "toc_line_width:" argument. To change the TOC heading font size, text color and text itself, add the desired parameters after the "toc_heading_font_size:" (75 pixels by default), "toc_heading_text_color:" ("LightSlateGrey" by default) and "toc_heading_text:" ("Contents" by default), respectively. Similarly, the "Pages" and "Subject" subheadings font sizes (both 60 pixels by default), text colors (each written in "LightSlateGrey" color by default) and text may be altered by entering your parameters of choice after the "toc_pages_font_size:" and "toc_subject_font_size:", "toc_pages_text_color:" and "toc_subject_text_color:" as well as "toc_pages_text:" and "toc_subject_text:" arguments, respectively. Finally, you may opt to remove the TOC altogether by specifying zero as the number of pages ("toc_pages_spacing:0"). Please keep in mind that the number of TOC pages needs to be an even number to ensure that the first of the numbered notebook pages lands on a right-hand page. For this reason, the code will automatically round up any inputted uneven pages to the next even numbers. Also, to make sure that the PDF document may be easily printed in duplex mode, additional notebook pages will automatically be added by the code if the total amount of pages (including the TOC) is not a multiple of four. 
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here" "toc_pages_spacing:6:0.3" "toc_line_width:3" "toc_heading_text:Index" "toc_heading_font_size:90" "toc_heading_text_color:Teal" "toc_pages_text:Page" "toc_pages_font_size:75" "toc_pages_text_color:SeaGreen" "toc_subject_text:Topic" "toc_subject_font_size:75" "toc_subject_text_color:SeaGreen" "toc_line_color:(143, 188, 143)"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" "heading_text:Your Heading Text Here" "toc_pages_spacing:6:0.3" "toc_line_width:3" "toc_heading_text:Index" "toc_heading_font_size:90" "toc_heading_text_color:Teal" "toc_pages_text:Page" "toc_pages_font_size:75" "toc_pages_text_color:SeaGreen" "toc_subject_text:Topic" "toc_subject_font_size:75" "toc_subject_text_color:SeaGreen" "toc_line_color:(143, 188, 143)"
 ```
 <br><br>
 
@@ -133,7 +133,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 11.</b> Should you like to have the dot grid pattern only on the right pages, and blank pages on left-hand pages, you would need to pass in the argument "dot_grid_right" instead of "dot_grid". The reverse outcome would require you to enter the "dot_grid_left" argument instead of "dot_grid".
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers_right" "inches_per_ream_500_pages:2.63" "dot_grid_right"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers_right" "inches_per_ream_500_pages:2.63" "dot_grid_right"
 ```
 <br><br>
 
@@ -143,7 +143,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 Finally, the default line width of 5 px and "Gainsboro" line color could be changed by providing the selected parameters after the "line_width:" and "line_color:" arguments, respectively, where either the HTML color name or RGB code may be specified for the line color.
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "college_ruled_left" "dot_grid_right" "line_width:4" "line_color:BurlyWood"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "college_ruled_left" "dot_grid_right" "line_width:4" "line_color:BurlyWood"
 ```
 <br><br>
 
@@ -152,7 +152,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 13.</b> For wide ruled pages (11/32 inch line spacing), the "wide_ruled" argument would need to be passed in. Furthermore, ruled pages with custom line spacing may also be generated by entering "custom_ruled:" followed by the line spacing in inches and in decimal format. Of note, unlike dot grid formats where the distances in-between dots are measured relative to the dot centers, line spacing is calculated as the actual space in-between the lines (excluding the pixels of the lines themselves).
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "custom_ruled_left:0.2" "dot_grid_right:0.2"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "custom_ruled_left:0.2" "dot_grid_right:0.2"
 ```
 <br><br>
 
@@ -160,7 +160,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 14.</b> Should you want to have dot grids on right-hand pages alternating with graph paper on the left pages, you would need to pass in the arguments "dot_grid_right" and "graph_paper_left:". The latter argument ends with a colon, which is then followed by the number of squares per inch, a colon divider, the number of squares in-between every thicker line, another colon, and finally the width ratio between the thicker line and the regular line having a default width of 5 px. The reverse could also be done by entering "dot_grid_left" as well as "graph_paper_right:", with the same information as above. It would also be possible to have graph paper on both pages by only passing "graph_paper:", with the same abovementioned parameters". Once again, the lower margins will be adjusted automatically such that the last horizontal dot grid line matches up as well as possible with the last horizontal graph paper line on the page. 
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "graph_paper_left:5:5:2" "dot_grid_right"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "graph_paper_left:5:5:2" "dot_grid_right"
 ```
 <br><br>
 
@@ -168,7 +168,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 15.</b> The default graph paper line width of 5 px and "Gainsboro" line color could be changed by providing the selected parameters after the "graph_line_width:" and "graph_line_color:" arguments, respectively, where either the HTML color name or RGB code may be specified for the graph line color.
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "graph_paper_left:5:5:2" "graph_line_width:3" "graph_line_color:rgb(172, 231, 248)" "dot_grid_right"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "graph_paper_left:5:5:2" "graph_line_width:3" "graph_line_color:rgb(172, 231, 248)" "dot_grid_right"
 ```
 <br><br>
 
@@ -176,7 +176,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 16.</b> For simple graph paper without bold lines, simply omit the two last parameters after the number of squares per inch. Besides that, you might wish to shrink the lower border (0.6 inch by default) in order to include more lines on the page. This could be done by passing in the number of inches (in decimal form, without units) from the bottom of the page where the lowest line could be drawn, after the "bottom_margin:" argument. You could also alter the default left page left margin and right page right margin of 0.25 inch, as well as the top margin of 0.95 inch, by entering the desired measurements after the "left_margin:", "right_margin:" and "top_margin:" arguments, respectively.
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "graph_paper_left:5" "graph_line_width:3" "graph_line_color:rgb(172, 231, 248)" "dot_grid_right" "bottom_margin:0.55" "left_margin:0.4" "right_margin:0.4"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text:Your Heading Text Here" "graph_paper_left:5" "graph_line_width:3" "graph_line_color:rgb(172, 231, 248)" "dot_grid_right" "bottom_margin:0.55" "left_margin:0.4" "right_margin:0.4"
 ```
 <br><br>
 
@@ -184,7 +184,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 17.</b> Other page combinations can be generated, such as graph paper and blank pages or graph paper and ruled lines, similarly to what was done above. It is also possible to alter the header and footer margins (which are by default 0.6 inch from the top and automatically vertically centered in the bottom of the page, respectively), by providing the selected measurements after the corresponding arguments "heading_top_margin:" and "page_numbers_bottom_margin:". Note that the horizontal alignment of the headings may be shifted through the inclusion of spaces in the arguments that are passed into the Python code. 
 <br>
 ```
-py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text_left:Sketch No.:        " "heading_text_right:Date:                " "graph_paper_left:5" "graph_line_width:3" "graph_line_color:rgb(172, 231, 248)" "college_ruled_right" "top_margin:1" "bottom_margin:0.5" "heading_top_margin:0.65" "page_numbers_bottom_margin:8.1" "heading_font_size:100" "page_numbers_font_size:70"
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "heading_text_left:Sketch No.:        " "heading_text_right:Date:                " "graph_paper_left:5" "graph_line_width:3" "graph_line_color:rgb(172, 231, 248)" "college_ruled_right" "top_margin:1" "bottom_margin:0.5" "heading_top_margin:0.65" "page_numbers_bottom_margin:8.1" "heading_font_size:100" "page_numbers_font_size:70"
 ```
 <br><br>
 
@@ -196,7 +196,7 @@ py -m printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_t
 <b>Figure 19.</b> Custom Designs may also be incorporated in your notebook, such as this daily planner journal (which is also featured in the thumbnail image of this Github page). Notice in the Python call below that the TOC headings and subheadings have been removed, leaving behind regular dot grid pages without page numbers. You could use these to write your bullet journal key and index, as well as monthly spreads, before the start of the daily planner numbered pages themselves. Should you want to have daily planner pages both on the left and right-hand pages, you would then pass in both "custom_template_left_page" and "custom_template_right_page". Please refer to the PDF document entitled "PrintANotebook - Custom Design Generation.pdf" for more on how to create and export custom designs in LibreOffice Draw. 
 <br>
 ```
-py -m printanotebook.py "title:Winter 2023 Daily Planners" "author:Louis-Philippe Bonhomme-Beaulieu" "number_of_pages:180" "page_numbers_right" "inches_per_ream_500_pages:2.63" "heading_text_left:Daily Planner" "custom_template_left_page" "dot_grid_right" "toc_pages_spacing:8" "toc_subject_text:" "toc_pages_text:" "toc_heading_text:" "top_margin:0.8" "bottom_margin:0.5" "right_margin:0.5" "cover_box_color:rgb(150, 63, 92)" "cover_text_color:White"
+py printanotebook.py "title:Winter 2023 Daily Planners" "author:Louis-Philippe Bonhomme-Beaulieu" "number_of_pages:180" "page_numbers_right" "inches_per_ream_500_pages:2.63" "heading_text_left:Daily Planner" "custom_template_left_page" "dot_grid_right" "toc_pages_spacing:8" "toc_subject_text:" "toc_pages_text:" "toc_heading_text:" "top_margin:0.8" "bottom_margin:0.5" "right_margin:0.5" "cover_box_color:rgb(150, 63, 92)" "cover_text_color:White"
 ```
 <br><br>
 
