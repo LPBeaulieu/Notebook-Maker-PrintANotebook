@@ -36,7 +36,7 @@ The code for cover image generation was optimized on notebooks having at least 1
 
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
-The following instructions will be provided in great detail, as they are intended for a broad audience and will allow to run a copy of <b>PrintANotebook</b> on a local computer. You can also view the YouTube version of the instructions at the following link: <b>The Youtube link will be added once the video has been uploaded.</b>
+The following instructions will be provided in great detail, as they are intended for a broad audience and will allow to run a copy of <b>PrintANotebook</b> on a local computer. You can also view the YouTube version of the instructions at the following link: https://www.youtube.com/watch?v=ycg2PL3bQQ4&list=PL8fAaOg_mhoGncGBjwn9A740Hh8IppOPH&index=2
    
 The instructions below are for Windows operating systems, but the code should run nicely on Linux and Mac-OS as well.
 
