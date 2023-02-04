@@ -225,7 +225,6 @@ py printanotebook.py "title:Winter 2023 Daily Planners" "author:Louis-Philippe B
 
 
 ## 🎉 Acknowledgments <a name = "acknowledgments"></a>
-- <b>Shout out to the talented Rajesh Misra for the gorgeous illustration</b> featured on the cover (https://www.publicdomainpictures.net/en/view-image.php?image=214080&picture=floral-pattern-background-843) 
 - Hat tip to [@kylelobo](https://github.com/kylelobo) for the GitHub README template!
 
 
