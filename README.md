@@ -203,7 +203,7 @@ py printanotebook.py "title:Winter 2023 Daily Planners" "author:Louis-Philippe B
 <h3><b>Printing Your Notebook</b></h3>
 <p>In order to print the notebook sheets, each consisting of two pages per side of a sheet of 8 1/2" by 11" paper, simply print them in landscape duplex mode with the "flip on short side" option. It should be noted that the page numbering is already in booklet format, so as to facilitate the printing process and book assembly.</p>
 
-<p>For <b>instructions on how to generate and print the notebook covers</b>, I would direct you to my other Github repository PrintABook, which lets you generate books in printable format from Project Gutenberg novel text files. The code is the same when it comes to making the book covers, so please refer to Figure 3 of the PrintABook Readme page for the list of arguments pertaining to cover generation, and to Step 8 onwards of the "Usage" section for more on how to print the notebook covers.
+<p>For <b>instructions on how to generate and print the notebook covers</b>, I would direct you to my other Github repository PrintABook, which lets you generate books in printable format from Project Gutenberg novel text files. The code is the same when it comes to making the book covers, so please refer to Figure 3 of the PrintABook Readme page for the list of arguments pertaining to cover generation, and to Step 8 onwards of the "Usage" section for more on how to print the notebook covers: https://github.com/LPBeaulieu/Book-Generator-PrintABook.
 <br><br>
 
 ![Figure 20](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Budgie%20Journal.jpg)<hr> 
