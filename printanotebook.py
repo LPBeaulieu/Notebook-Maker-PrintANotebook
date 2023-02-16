@@ -1,9 +1,14 @@
+#**PRINTING TIPS ON LASER PRINTER** In my case, using a Brother HL-L5200DW
+#printer, the best printing results were obtained at the highest resolution
+#(HQ1200 dpi), with the "text" mode selected (and not the "graphics" mode).
+
 import glob
 import numpy as np
 import os
 from PIL import Image, ImageDraw, ImageFont, ImageOps
 import re
 import sys
+from datetime import date
 
 
 cwd = os.getcwd()
@@ -33,6 +38,11 @@ adjusted_author_cover = None
 #than the abbreviated author name, followed
 #by a hyphen and the book title.
 spine_text = None
+#The users may choose to perforate their notebook
+#pages and covers to bind them using standard
+#ring binders or a discbound option. If so,
+#the value of "perforated_cover" will be set to "True".
+perforated_cover = False
 #Should the cover title need to be split,
 #the default line spacing in-between title lines
 #is initialized at 5 pixels, and may be altered
@@ -190,7 +200,9 @@ page_numbers_right = None
 
 #The "heading_top_margin_y_pixel" maps to the "y"
 #pixel where the heading text is written.
-heading_top_margin_y_pixel = 0.60*2550/8.5
+
+heading_top_margin_y_pixel = 0.60*300
+
 #Similarly, "page_numbers_bottom_margin_y_pixel" maps to the
 #"y" pixel where the page numbers are written.
 
@@ -210,22 +222,22 @@ page_numbers_bottom_margin_y_pixel = None
 #The "top_margin_y_pixel" maps to the "y" pixel
 #where the lines or dots start being drawin on
 #the pages.
-top_margin_y_pixel = 0.95*2550/8.5
+top_margin_y_pixel = 0.95*300
 #Similarly, the "bottom_margin_y_pixel" maps to
 #the "y" pixel where the lines and dots end.
-bottom_margin_y_pixel = 2550-(0.60*2550/8.5)
+bottom_margin_y_pixel = 2550-(0.60*300)
 #The variables "left_margin_x_pixel"  and
 #"right_margin_x_pixel" map to the "x"
 #pixels where the lines and dots start and
 #stop being drawn on the pages, respectively.
-left_margin_x_pixel = 0.25*3300/8.5
-right_margin_x_pixel = 3300-(0.25*3300/8.5)
+left_margin_x_pixel = 0.25*300
+right_margin_x_pixel = 3300-(0.25*300)
 #The "gutter_margin_width_pixels" designates the
 #width (in pixels) of the gutter margins of the
 #notebook. They are set to the pixel equivalent
 #of an eighth of an inch, so they won't be noticeable
 #when opening a bound book.
-gutter_margin_width_pixels = 0.125*3300/8.5
+gutter_margin_width_pixels = 0.125*300
 #The various page formattings (lines,
 #graph paper, dots) are initialized as
 #False, so that the notebook would have
@@ -251,6 +263,23 @@ graph_paper_right = False
 dot_grid = False
 dot_grid_left = False
 dot_grid_right = False
+#ScriptReader is another github repo that
+#enables the user to train a OCR convoluted
+#neural network model on their handwriting,
+#using customized dot grid sheets generated
+#with PrintANotebook. If the user enters the
+#appropriate parameters, "scriptreader" will
+#be set to "True".
+scriptreader_left = False
+scriptreader_right = False
+scriptreader = False
+#The list of line indices where characters will be segmented
+#if the ScriptReader option is selected ("text_line_numbers")
+#is initialized including the zero index, as the first line of text needs to be
+#on the first line, and then at a regular interval thereafter after that. There
+#is a default of three empty lines in-between every line of text, to minimize
+#the overlapping of ascenders and descenders of adjacent text lines.
+text_line_numbers = None
 #The "dot_y_shift_down" variable stores the
 #amount of pixels that will be added to the
 #starting "y" coordinate.  The value of
@@ -326,17 +355,18 @@ bold_line_every_n_squares = 5
 
 #The left margin can be determined by subtracting the space
 #in-between the margins (4.75 inches) from the right edge
-#pixel count: (4200 - 4.75*4200/14) = 2775 px
+#pixel count: (4200 - 4.75*300 = 2775 px)
 left_margin_cover_textbox = 2775
 
 #The right margin can simply be calculated given the pixel
-#width of the canvas: 4220-(0.75*4200/14) = 3995 px
+#width of the canvas (4220-0.75*300 = 3995 px)
 right_margin_cover_textbox = 3995
 
 #The top margin of the text box on the cover page can
 #be determined by adding a 25% of the vertical
 #pixels to the starting y corrdinate of 0. (0+(2550/4)).
 top_margin_cover_textbox = 640
+
 
 if len(sys.argv) > 1:
     #The "try/except" statement will
@@ -347,9 +377,9 @@ if len(sys.argv) > 1:
     #the variable name from the value.
     try:
         for i in range(1, len(sys.argv)):
-            if len(sys.argv[i]) > 1 and sys.argv[i][:6] == "title:":
+            if sys.argv[i][:6] == "title:":
                 title = sys.argv[i][6:]
-            elif len(sys.argv[i]) > 1 and sys.argv[i][:7] == "author:":
+            elif sys.argv[i][:7] == "author:":
                 if len(sys.argv[i][7:]) > 3 and sys.argv[i][7:10].lower() == "by ":
                     author = sys.argv[i][10:]
                     author_names = re.split(r"( )", author)
@@ -396,10 +426,10 @@ if len(sys.argv) > 1:
                 cover_line = False
             elif sys.argv[i].strip().lower()[:19] == "cover_extra_inches:":
                 inches = float(sys.argv[i].strip()[19:])
-                cover_extra_pixels = round(inches*4200/14)
+                cover_extra_pixels = round(inches*300)
             elif sys.argv[i].strip().lower()[:15] == "cover_extra_cm:":
                 cm = float(sys.argv[i].strip()[15:])
-                cover_extra_pixels = round(cm/2.54*4200/14)
+                cover_extra_pixels = round(cm/2.54*300)
             elif sys.argv[i].strip().lower()[:31] == "pixels_from_bottom_cover_spine:":
                 pixels_from_bottom_cover_spine = int(sys.argv[i].strip()[31:])
             elif sys.argv[i].strip().lower()[:29] == "pixels_from_left_cover_spine:":
@@ -413,22 +443,24 @@ if len(sys.argv) > 1:
             #The elif statements below are specific to PrintANotebook
             elif sys.argv[i].lower()[:12] == "left_margin:":
                 inches = float(sys.argv[i][12:].strip())
-                left_margin_x_pixel = round(inches*3300/8.5)
+                left_margin_x_pixel = round(inches*300)
             elif sys.argv[i].lower()[:13] == "right_margin:":
                 inches = float(sys.argv[i][13:].strip())
-                right_margin_x_pixel = 3300-round(inches*3300/8.5)
+                right_margin_x_pixel = 3300-round(inches*300)
             elif sys.argv[i].lower()[:11] == "top_margin:":
                 inches = float(sys.argv[i][11:].strip())
-                top_margin_y_pixel = round(inches*2550/8.5)
+                top_margin_y_pixel = round(inches*300)
             elif sys.argv[i].lower()[:14] == "bottom_margin:":
                 inches = float(sys.argv[i][14:].strip())
-                bottom_margin_y_pixel = 2550-round(inches*2550/8.5)
+                bottom_margin_y_pixel = 2550-round(inches*300)
+            elif sys.argv[i].lower()[:14] == "gutter_margin:":
+                gutter_margin_width_pixels = round(float(sys.argv[i].lower()[14:].strip())*300)
             elif sys.argv[i].lower()[:19] == "heading_top_margin:":
                 inches = float(sys.argv[i][19:].strip())
-                heading_top_margin_y_pixel = round(inches*2550/8.5)
+                heading_top_margin_y_pixel = round(inches*300)
             elif sys.argv[i].lower()[:27] == "page_numbers_bottom_margin:":
                 inches = float(sys.argv[i][27:].strip())
-                page_numbers_bottom_margin_y_pixel = 2550-round(inches*2550/8.5)
+                page_numbers_bottom_margin_y_pixel = 2550-round(inches*300)
             elif sys.argv[i].strip().lower()[:18] == "heading_text_left:":
                 heading_text_left = sys.argv[i][18:]
             elif sys.argv[i].strip().lower()[:19] == "heading_text_right:":
@@ -522,7 +554,6 @@ if len(sys.argv) > 1:
                             bold_line_every_n_squares = int(arguments[j])
                         elif j == 2:
                             line_boldness_factor = float(arguments[j])
-
             elif (sys.argv[i].strip().lower()[:14] == "dot_grid_left:" or
             sys.argv[i].strip().lower()[:13] == "dot_grid_left"):
                 dot_grid_left = True
@@ -547,6 +578,63 @@ if len(sys.argv) > 1:
                             dot_diameter_pixels = int(arguments[j])
                         elif j == 2:
                             dot_line_width = int(arguments[j])
+            elif sys.argv[i].lower()[:18] == "scriptreader_left:":
+                scriptreader_left = True
+                #If the user has selected to print some custom
+                #dot grid pages for use in the handwriting OCR
+                #application ScriptReader, they will likely want
+                #to perforate the pages for binding, and so a wider
+                #gutter margins of 0.75 inch is included by default,
+                #which may be overriden if the user has specified
+                #a different gutter margin as the fifth argument.
+                gutter_margin_width_pixels = 0.75*300
+                arguments = sys.argv[i].strip()[18:].split(":")
+                if arguments != [""]:
+                    for j in range(len(arguments)):
+                        if j == 0:
+                            inches_between_dots = float(arguments[j])
+                        elif j == 1:
+                            dot_diameter_pixels = int(arguments[j])
+                        elif j == 2:
+                            dot_line_width = int(arguments[j])
+                        elif j == 3:
+                            lines_between_text = int(arguments[j])
+                        elif j == 4:
+                            gutter_margin_width_pixels = round(float(arguments[j])*300)
+            elif sys.argv[i].lower()[:19] == "scriptreader_right:":
+                scriptreader_right = True
+                gutter_margin_width_pixels = 0.75*300
+                arguments = sys.argv[i].strip()[19:].split(":")
+                if arguments != [""]:
+                    for j in range(len(arguments)):
+                        if j == 0:
+                            inches_between_dots = float(arguments[j])
+                        elif j == 1:
+                            dot_diameter_pixels = int(arguments[j])
+                        elif j == 2:
+                            dot_line_width = int(arguments[j])
+                        elif j == 3:
+                            lines_between_text = int(arguments[j])
+                        elif j == 4:
+                            gutter_margin_width_pixels = round(float(arguments[j])*300)
+            elif sys.argv[i].lower()[:13] == "scriptreader:":
+                scriptreader = True
+                gutter_margin_width_pixels = 0.75*300
+                arguments = sys.argv[i].strip()[13:].split(":")
+                if arguments != [""]:
+                    for j in range(len(arguments)):
+                        if j == 0:
+                            inches_between_dots = float(arguments[j])
+                        elif j == 1:
+                            dot_diameter_pixels = int(arguments[j])
+                        elif j == 2:
+                            dot_line_width = int(arguments[j])
+                        elif j == 3:
+                            lines_between_text = int(arguments[j])
+                        elif j == 4:
+                            gutter_margin_width_pixels = round(float(arguments[j])*300)
+            elif sys.argv[i].lower()[:19] == "lines_between_text:":
+                lines_between_text = int(sys.argv[j].lower()[19:].strip())
             elif (sys.argv[i].strip().lower()[:9] == "dot_grid:" or
             sys.argv[i].strip().lower()[:8] == "dot_grid"):
                 dot_grid = True
@@ -650,13 +738,25 @@ if jpeg_files == []:
     'wish to use as a background for the book cover in the working folder. Also, please ' +
     'make sure that the provided background image is in JPEG format, ' +
     "with a resolution of 300 ppi and a canvas size of US Legal dimensions in " +
-    "landscape mode (width of 4200 pixels and height of 2550 pixels).\n")
+    'landscape mode (width of 4200 pixels and height of 2550 pixels) and that the ' +
+    'file name starts with "cover". Alternatively, for a perforated cover used in ' +
+    'binders, you would need to provide a background image with a resolution of 300 ppi and ' +
+    'a canvas size of US Letter dimensions in landscape mode (width of 3300 pixels and height ' +
+    'of 2550 pixels), with a file name starting with "perforated cover".\n\n' +
+    "Moreover, if you wish to add an image template to your notebook, the image " +
+    "needs to have a resolution of 300 ppi and a canvas size of US Letter dimensions in " +
+    "landscape mode (width of 3300 pixels and height of 2550 pixels), with margins according " +
+    "to the specifications (default left and margins 1/4 inch, top margin 1 inch and bottom " +
+    'margin 3/4 inch). Also, make sure to add the prefix "left page" or "right page" to the jpeg file name.')
     problem = True
 else:
     cover_background_img = None
     page_background_img = None
     for i in range(len(jpeg_files)):
-        if os.path.split(jpeg_files[i])[-1][:5].lower() == "cover":
+        if os.path.split(jpeg_files[i])[-1][:16].lower() in ["perforated cover", "perforated_cover"]:
+            cover_background_img = jpeg_files[i]
+            perforated_cover = True
+        elif os.path.split(jpeg_files[i])[-1][:5].lower() == "cover":
             cover_background_img = jpeg_files[i]
         elif os.path.split(jpeg_files[i])[-1][:9].lower() in ["left page", "left_page"]:
             left_page_background_img = jpeg_files[i]
@@ -669,7 +769,10 @@ else:
         'make sure that the provided background image is in JPEG format, ' +
         "with a resolution of 300 ppi and a canvas size of US Legal dimensions in " +
         'landscape mode (width of 4200 pixels and height of 2550 pixels) and that the ' +
-        'file name starts with "cover".\n\n' +
+        'file name starts with "cover". Alternatively, for a perforated cover used in ' +
+        'binders, you would need to provide a background image with a resolution of 300 ppi and ' +
+        'a canvas size of US Letter dimensions in landscape mode (width of 3300 pixels and height ' +
+        'of 2550 pixels), with a file name starting with "perforated cover".\n\n' +
         "Moreover, if you wish to add an image template to your notebook, the image " +
         "needs to have a resolution of 300 ppi and a canvas size of US Letter dimensions in " +
         "landscape mode (width of 3300 pixels and height of 2550 pixels), with margins according " +
@@ -712,7 +815,8 @@ else:
     TOC_subject_font = ImageFont.truetype(ttf_files[0], TOC_subject_font_size)
 
 if (problem == False and title != None and number_of_pages
-not in [0, None] and inches_per_ream_500_pages not in [0, None]):
+not in [0, None] and (inches_per_ream_500_pages not in [0, None]
+or perforated_cover == True)):
 
     #In order for the booklet numbering to allow for duplex printing,
     #the sum of the TOC pages and the notebook pages needs to be
@@ -789,90 +893,111 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
     if page_numbers_bottom_margin_y_pixel == None:
         page_numbers_bottom_margin_y_pixel = 2550-(75 + (page_numbers_font_size/2)*2/3)
 
-    #Some extra pixels are subtracted from "left_margin_cover_textbox",
-    #(35 pixels by default), as there seems to be 3 mm missing on both
-    #sides of the cover due to binding irregularities and the thickness of
-    #the glue: (3 mm * inch/25.4 mm * 4200 pixels/14 inch = 35 pixels).
-    #By subtracting some pixels, the cover title box is shifted towards
-    #the left.
-    left_margin_cover_textbox -= cover_extra_pixels
+    if perforated_cover == False:
+        #Some extra pixels are subtracted from "left_margin_cover_textbox",
+        #(35 pixels by default), as there seems to be 3 mm missing on both
+        #sides of the cover due to binding irregularities and the thickness of
+        #the glue: (3 mm * inch/25.4 mm * 4200 pixels/14 inch = 35 pixels).
+        #By subtracting some pixels, the cover title box is shifted towards
+        #the left.
+        left_margin_cover_textbox -= cover_extra_pixels
 
-    #The same applies to the "right_margin_cover_textbox"
-    right_margin_cover_textbox -= cover_extra_pixels
+        #The same applies to the "right_margin_cover_textbox"
+        right_margin_cover_textbox -= cover_extra_pixels
 
-    #The space between the left edge of the textbox
-    #and the start of the text on the x axis is set to 100 pixels,
-    #so the text will start drawing at "left_margin_cover_textbox + 100" pixels
-    left_margin_cover_text = left_margin_cover_textbox + 100
+        #The space between the left edge of the textbox
+        #and the start of the text on the x axis is set to 100 pixels,
+        #so the text will start drawing at "left_margin_cover_textbox + 100" pixels
+        left_margin_cover_text = left_margin_cover_textbox + 100
 
-    #The space between the right edge of the textbox
-    #and the end of the text on the x axis is set to 100 pixels,
-    #so the text will start drawing at "right_margin_cover_textbox - 100" pixels
-    right_margin_cover_text = right_margin_cover_textbox - 100
+        #The space between the right edge of the textbox
+        #and the end of the text on the x axis is set to 100 pixels,
+        #so the text will start drawing at "right_margin_cover_textbox - 100" pixels
+        right_margin_cover_text = right_margin_cover_textbox - 100
 
-    #The space between the top margin of the textbox
-    #and where the top edge of the text on the y axis
-    #is set to 50 pixels: "top_margin_cover_textbox+100"
-    vertical_margin_cover_text = top_margin_cover_textbox + 100
+        #The space between the top margin of the textbox
+        #and where the top edge of the text on the y axis
+        #is set to 50 pixels: "top_margin_cover_textbox+100"
+        vertical_margin_cover_text = top_margin_cover_textbox + 100
 
-    #The number of pages and thickness of a ream of paper of 500 pages will allow to determine
-    #the dimensions of the rectangle that will mark the location of the spine of the book
-    #on a US Legal canvas in Landscape mode and with a resolution of 300 ppi.
-    spine_thickness_inches = inches_per_ream_500_pages*total_number_of_pages/500
-    spine_thickness_pixels = int(inches_per_ream_500_pages*4200/14)
-
-    #The "ImageDraw" module will load the default background image (which
-    #the user can change by selecting another image in the working folder and
-    #passing in its name as an additional argument, when calling the Python code.
-    font_title = ImageFont.truetype(cover_font, cover_title_font_size)
-    image = Image.open(cover_background_img)
-    #If the user has provided a custom template page JPEG image, it will be
-    #opened and an editable version will be instantiated. Two subsequent "if"
-    #statements are required here, as there may be different images for the
-    #left and right pages (if the designs are to be present on both pages,
-    #accordingly with the "").
-    if left_page_background_img != None:
-        left_custom_template_image = Image.open(left_page_background_img)
-    if right_page_background_img != None:
-        right_custom_template_image = Image.open(right_page_background_img)
+        #The number of pages and thickness of a ream of paper of 500 pages will allow to determine
+        #the dimensions of the rectangle that will mark the location of the spine of the book
+        #on a US Legal canvas in Landscape mode and with a resolution of 300 ppi.
+        spine_thickness_inches = inches_per_ream_500_pages*total_number_of_pages/500
+        spine_thickness_pixels = int(inches_per_ream_500_pages*300)
 
 
-    #If the user hasn't provided a color for the cover text box
-    #nor for the cover text, the colors will be assigned automatically
-    #based on the darkest and lightest pixels on the canvas. In order to
-    #facilitate this process, the image the image is first converted to
-    #grayscale in order to be able to extract the darkest and lightest
-    #pixels from the background.
+    elif perforated_cover == True:
+        #Similarly, for the perforated cover in letter format,
+        #the left margin would be calculated from the width of
+        #the page in landscape format at 300 ppi resolution,
+        #(3300 - 4.75*3300/11 = 1875 px)
+        left_margin_cover_textbox = 1875
 
-    #If the user hasn't povided a color for the cover text box
-    #nor for the cover text, then the code needs to check if
-    #the submitted image is grayscale or not, in the case that
-    #the "grayscale" argument wasn't passed in when running the code.
-    #If the submitted image turns out to already be in grayscale format,
-    #then the default color for the cover boxes is set to "Black" and
-    #the color of the cover text is set to "LightGrey", as these give more
-    #esthetically pleasing results in terms of contrast with the
-    #background.
-    #The first pixel "x,y" coordinate at index "[0][0]" in the numpy
-    #array "image_array" (before the image is converted to "RGB" mode)
-    #will be checked to see if it is of type "np.ndarray", indicating that
-    #it has RGB channels, instead of being an integer as in a
-    #grayscale image. If the "isinstance()" method is "False",
-    #then it means that the image is grayscale.
-    if cover_box_color == None and cover_text_color == None:
-        image_array = np.array(image)
-        if isinstance(image_array[0][0], np.ndarray) == False or grayscale == True:
-            cover_box_color = "Black"
-            cover_text_color = "LightGrey"
-            #If the provided image was in grayscale format to start with,
-            #or if the user has passed in the "grayscale" argument when
-            #running the code, then the "image" instance is overwritten with
-            #its grayscale version and the "grayscale" variable is set to "True",
-            #in order to avoid creating another grayscale image in the "elif"
-            #statement below: "cover_box_color == None and cover_text_color ==
-            #None and grayscale == False".
-            image = ImageOps.grayscale(image)
-            grayscale = True
+        #The right margin can simply be calculated given the pixel
+        #width of the canvas (4220-0.75*300 = 3995 px)
+        right_margin_cover_textbox = 3995
+        #A similar calculation takes place for the perforated
+        #cover in letter format (3300-0.75*3300/11 = 3075 px)
+        right_margin_cover_textbox = 3075
+
+        #The space between the left edge of the textbox
+        #and the start of the text on the x axis is set to 100 pixels,
+        #so the text will start drawing at "left_margin_cover_textbox + 100" pixels
+        left_margin_cover_text = left_margin_cover_textbox + 100
+
+        #The space between the right edge of the textbox
+        #and the end of the text on the x axis is set to 100 pixels,
+        #so the text will start drawing at "right_margin_cover_textbox - 100" pixels
+        right_margin_cover_text = right_margin_cover_textbox - 100
+
+        #The space between the top margin of the textbox
+        #and where the top edge of the text on the y axis
+        #is set to 50 pixels: "top_margin_cover_textbox+100"
+        vertical_margin_cover_text = top_margin_cover_textbox + 100
+
+        #The "ImageDraw" module will load the default background image (which
+        #the user can change by selecting another image in the working folder and
+        #passing in its name as an additional argument, when calling the Python code.
+        font_title = ImageFont.truetype(cover_font, cover_title_font_size)
+        image = Image.open(cover_background_img)
+
+        #If the user hasn't provided a color for the cover text box
+        #nor for the cover text, the colors will be assigned automatically
+        #based on the darkest and lightest pixels on the canvas. In order to
+        #facilitate this process, the image the image is first converted to
+        #grayscale in order to be able to extract the darkest and lightest
+        #pixels from the background.
+
+        #If the user hasn't povided a color for the cover text box
+        #nor for the cover text, then the code needs to check if
+        #the submitted image is grayscale or not, in the case that
+        #the "grayscale" argument wasn't passed in when running the code.
+        #If the submitted image turns out to already be in grayscale format,
+        #then the default color for the cover boxes is set to "Black" and
+        #the color of the cover text is set to "LightGrey", as these give more
+        #esthetically pleasing results in terms of contrast with the
+        #background.
+        #The first pixel "x,y" coordinate at index "[0][0]" in the numpy
+        #array "image_array" (before the image is converted to "RGB" mode)
+        #will be checked to see if it is of type "np.ndarray", indicating that
+        #it has RGB channels, instead of being an integer as in a
+        #grayscale image. If the "isinstance()" method is "False",
+        #then it means that the image is grayscale.
+        if cover_box_color == None and cover_text_color == None:
+            image_array = np.array(image)
+            if isinstance(image_array[0][0], np.ndarray) == False or grayscale == True:
+                cover_box_color = "Black"
+                cover_text_color = "LightGrey"
+                #If the provided image was in grayscale format to start with,
+                #or if the user has passed in the "grayscale" argument when
+                #running the code, then the "image" instance is overwritten with
+                #its grayscale version and the "grayscale" variable is set to "True",
+                #in order to avoid creating another grayscale image in the "elif"
+                #statement below: "cover_box_color == None and cover_text_color ==
+                #None and grayscale == False".
+                image = ImageOps.grayscale(image)
+                grayscale = True
 
     #If the provided image isn't in grayscale format, then the colors for the
     #cover text box fill and text need to be determined. The value of the variable
@@ -1208,7 +1333,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
     #(split evenly on either side of the rectangle), to keep the margins on either side
     #of the rectangle even despite the presence of such a white trim.
 
-    cover_trim_width_pixels = round(cover_trim_width*4200/14)
+    cover_trim_width_pixels = round(cover_trim_width*300)
     image_editable.rounded_rectangle([(left_margin_cover_textbox-
     round(cover_trim_width_pixels/2),top_margin_cover_textbox),
     (right_margin_cover_textbox-round(cover_trim_width_pixels/2),
@@ -1272,503 +1397,633 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
         round(cover_spacing_title_height_ratio*cover_title_height)),
         author, fill=cover_text_color, font=font_author, align="center")
 
-    #The rectangles for the spine are drawn in a similar way as for the title and author name,
-    #except that the width depends on the number of pages in the book and the thickness of a
-    #ream of paper of 500 pages, which are both provided as additional arguments by the user
-    #when running the code. The width of the spine in pixels "width_of_spine_pixels" is
-    #determined by multiplying the "inches_per_ream_500_pages" by the number of pages in the
-    #book ("total_number_of_pages"), and then dividing by two (as every sheet of 8.5x11" paper will
-    #result in two leaves of the book (each containing two pages) pages in the book) and then
-    #by 500 to get the number of inches of thickness for the book. The number of inches is
-    #then multiplied by the pixel count for the width of the Legal page in landscape mode
-    #(4200 pixels at 300 ppi) and then divided by the corresponding inch measurement for
-    #that width (14").
-    width_of_spine_pixels = inches_per_ream_500_pages*total_number_of_pages/2/500*4200/14
+    if perforated_cover == True:
+        #A white trim of "cover_trim_width" inches in width (which is converted into pixels
+        #(cover_trim_width*300)) will be drawn on the outer edges of the canvas, except
+        #the left side, where another similar trim will be drawn where the back cover ends,
+        #enabling the user to easily cut out the excess paper from the Legal cardstock after printing.
+        image_editable.rectangle([(0,0),(3300, cover_trim_width_pixels)], fill="white")
+        image_editable.rectangle([(round(3300-cover_trim_width*300),0),(3300, 2550)], fill="white")
+        image_editable.rectangle([(0,2550-cover_trim_width_pixels),(3300, 2550)], fill="white")
+        image_editable.rectangle([(0,0), (cover_trim_width_pixels, 2550)], fill="white")
 
-    #A white trim of "cover_trim_width" inches in width (which is converted into pixels
-    #(cover_trim_width*4200/14)) will be drawn on the outer edges of the canvas, except
-    #the left side, where another similar trim will be drawn where the back cover ends,
-    #enabling the user to easily cut out the excess paper from the Legal cardstock after printing.
-    image_editable.rectangle([(0,0),(4200, cover_trim_width_pixels)], fill="white")
-    image_editable.rectangle([(round(4200-cover_trim_width*4200/14),0),(4200, 2550)], fill="white")
-    image_editable.rectangle([(0,2550-cover_trim_width_pixels),(4200, 2550)], fill="white")
-    #The top left corner of the white rectangle is shifted to the left by "2*cover_extra_pixels"
-    #pixels, to account for the extra pixels added on the left and right covers. Also, an extra
-    #6 pixels (equivalent to about 0.5 mm) are added to the width of the white rectangle on the
-    #left vertical side, to allow to cut the line while excluding the pattern on the excess cardstock.
-    image_editable.rectangle([(4200-round(11*4200/14+width_of_spine_pixels+2*cover_extra_pixels)-6,0),
-    (4200-round(11*4200/14+width_of_spine_pixels+2*cover_extra_pixels) + cover_trim_width_pixels, 2550)], fill="white")
-    if cover_line == True:
-        #If the variable "cover_line" is set to "True" , a dark trim
-        #of color "dark_color" is drawn directly within the white border, so as to harmonize
-        #the white border with the rest of the contents of the cover. Once again, the top left
-        #corner of the dark rectangle is shifted to the left by "2*cover_extra_pixels"
-        #pixels, to account for the extra pixels added on the left and right covers.
-        image_editable.rectangle([((4200-round(11*4200/14+width_of_spine_pixels+2*cover_extra_pixels))+
-        cover_trim_width_pixels,cover_trim_width_pixels),(4200-cover_trim_width_pixels,
-        2550-cover_trim_width_pixels)], outline=cover_box_color, width = 25)
+        if cover_line == True:
+            #If the variable "cover_line" is set to "True" , a dark trim
+            #of color "dark_color" is drawn directly within the white border, so as to harmonize
+            #the white border with the rest of the contents of the cover and to show the user
+            #where to cut the letter page in half to generate the front and back notebook covers.
+            # image_editable.rectangle([(cover_trim_width_pixels, cover_trim_width_pixels),(3300-cover_trim_width_pixels,
+            # 2550-cover_trim_width_pixels)], outline=cover_box_color, width = 25)
+            # image_editable.rectangle([(3300/2-26, cover_trim_width_pixels), (3300/2-2, 2550-cover_trim_width_pixels,
+            # )], outline=cover_box_color, width = 25)
+            # image_editable.rectangle([(3300/2+2, cover_trim_width_pixels), (3300/2+26, 2550-cover_trim_width_pixels,
+            # )], outline=cover_box_color, width = 25)
 
-    #The "x,y" coordinates of the top left corner of the rectangle are calculated based on the
-    #width of the covers of the book (14"-5.5"=8.5") and the pixel count is given using the known
-    #pixel numbers for the width of a Legal page in landscape mode (4200 pixels at 300 ppi).
-    #The width of the spine is then subracted in order to reach the left "x" coordinate with
-    #the subtraction of "cover_extra_pixels" pixels to account for the space needed to fold
-    #the spine and for the added thickness imparted by the glue. The top "y" coordinate is set
-    #at one inch from the top of the page, and the bottom "y" coordinate of the bottom right
-    #corner is set at one inche from the bottom of the page (8.5"-1"=7.5"). The bottom right
-    #corner "x" coordinate is calculated based on the width of the covers of the book (14"-5.5"=8.5")
-    #and the pixel count is determined using the Legal proportions as above, with "cover_extra_pixels"
-    #pixels being subtracted to avoid spillover of the black spine onto the cover page when folding
-    #the cover paper.
-    image_editable.rounded_rectangle([(8.5*4200/14-width_of_spine_pixels-cover_extra_pixels,1.0*4200/14),
-    (8.5*4200/14-cover_extra_pixels,7.5*4200/14)], radius=50, fill=cover_box_color)
+            image_editable.rectangle([(cover_trim_width_pixels, cover_trim_width_pixels),
+            (3300/2-2, 2550-cover_trim_width_pixels)], outline=cover_box_color, width = 25)
+            image_editable.rectangle([(3300/2+2, cover_trim_width_pixels),
+            (3300-cover_trim_width_pixels, 2550-cover_trim_width_pixels,)], outline=cover_box_color, width = 25)
 
-    #If the user hasn't specified some text to be included on the spine ("spine_text == None"),
-    #the author name is initialized to take up less space on the spine. First, the name is
-    #split at every space or hyphen, with inclusion of those characters as separate elements
-    #in the "author_name_split" list (given the use of parentheses). Then, the names are
-    #cycled through in the "for" loop and if the element isn't the last one in the list,
-    #meaning that it is not the last name, and if it isn't a space or a hyphen and if its
-    #length is more than 1 and the second character isn't a period, then that name is
-    #initialized.
-    if spine_text == None:
-        author_name_split = re.split(r"([' '-])", author)
-        for i in range(len(author_name_split)):
-            if (author_name_split[i] not in [" ", "-"] and (len(author_name_split[i]) > 1 and
-            author_name_split[i][1] != ".") and i < len(author_name_split)-1):
-                author_name_split[i] = author_name_split[i][0] + "."
-        author_spine = "".join(author_name_split) + " — "
 
-        #The "spine_text" containing the text written on the spine is assembled.
-        spine_text = author_spine + title.strip()
-    #Similar to what was done above, the font size of the spine
-    #initialized to 100 pixels (unless the user specified something different),
-    #will be optimized to the available space.
-    #However, in this case both the horizontal and vertical
-    #space need to be considered, as only one line of text can fit
-    #onto the spine (so the string will not be split into two lines
-    #as for the title and author box).
-    font_spine = ImageFont.truetype(cover_font, spine_font_size)
 
-    spine_text_length_pixels = image_editable.textlength(spine_text, font_spine)
+    elif perforated_cover == False:
+        #The rectangles for the spine are drawn in a similar way as for the title and author name,
+        #except that the width depends on the number of pages in the book and the thickness of a
+        #ream of paper of 500 pages, which are both provided as additional arguments by the user
+        #when running the code. The width of the spine in pixels "width_of_spine_pixels" is
+        #determined by multiplying the "inches_per_ream_500_pages" by the number of pages in the
+        #book ("total_number_of_pages"), and then dividing by two (as every sheet of 8.5x11" paper will
+        #result in two leaves of the book (each containing two pages) pages in the book) and then
+        #by 500 to get the number of inches of thickness for the book. The number of inches is
+        #then multiplied by the pixel count for the width of the Legal page in landscape mode
+        #(4200 pixels at 300 ppi) and then divided by the corresponding inch measurement for
+        #that width (14").
+        width_of_spine_pixels = inches_per_ream_500_pages*total_number_of_pages/2/500*300
 
-    #Similarly to the title and author box, a white rectangle 25 pixels distant from the edge
-    #of the black rectangle is drawn only if the number of pages is over 300, as its presence
-    #decreases the available space for the spine text.
-    if total_number_of_pages >= 300:
-        image_editable.rounded_rectangle([(8.5*4200/14-width_of_spine_pixels+25-cover_extra_pixels,1.0*4200/14+25),
-        (8.5*4200/14-25-cover_extra_pixels,7.5*4200/14-25)], radius=round((width_of_spine_pixels
-        -50)/width_of_spine_pixels*50), outline=cover_text_color, width=10)
+        #A white trim of "cover_trim_width" inches in width (which is converted into pixels
+        #(cover_trim_width*300)) will be drawn on the outer edges of the canvas, except
+        #the left side, where another similar trim will be drawn where the back cover ends,
+        #enabling the user to easily cut out the excess paper from the Legal cardstock after printing.
+        image_editable.rectangle([(0,0),(4200, cover_trim_width_pixels)], fill="white")
+        image_editable.rectangle([(round(4200-cover_trim_width*300),0),(4200, 2550)], fill="white")
+        image_editable.rectangle([(0,2550-cover_trim_width_pixels),(4200, 2550)], fill="white")
+        #The top left corner of the white rectangle is shifted to the left by "2*cover_extra_pixels"
+        #pixels, to account for the extra pixels added on the left and right covers. Also, an extra
+        #6 pixels (equivalent to about 0.5 mm) are added to the width of the white rectangle on the
+        #left vertical side, to allow to cut the line while excluding the pattern on the excess cardstock.
+        image_editable.rectangle([(4200-round(11*300+width_of_spine_pixels+2*cover_extra_pixels)-6,0),
+        (4200-round(11*300+width_of_spine_pixels+2*cover_extra_pixels) + cover_trim_width_pixels, 2550)], fill="white")
+        if cover_line == True:
+            #If the variable "cover_line" is set to "True" , a dark trim
+            #of color "dark_color" is drawn directly within the white border, so as to harmonize
+            #the white border with the rest of the contents of the cover. Once again, the top left
+            #corner of the dark rectangle is shifted to the left by "2*cover_extra_pixels"
+            #pixels, to account for the extra pixels added on the left and right covers.
+            image_editable.rectangle([((4200-round(11*300+width_of_spine_pixels+2*cover_extra_pixels))+
+            cover_trim_width_pixels,cover_trim_width_pixels),(4200-cover_trim_width_pixels,
+            2550-cover_trim_width_pixels)], outline=cover_box_color, width = 25)
 
-        #The available space on the horizontal axis is determined by subtracting the
-        #"x" coordinate of the bottom right corner of the spine dark rectangle from
-        #that of the top left corner. 70 pixels are subtracted from that amount to
-        #account for the space between the pale rectangle vertical edges and the text.
-        available_horizontal_space_pixels = (round((8.5*4200/14-25)-
-        (8.5*4200/14-width_of_spine_pixels+25))-70)
-        #As there is one inch above and below the dark rectangle, the height of the
-        #dark rectangle is equal to the height of the Legal page in landscape mode
-        #minus two inches (8.5"-2"=6.5"). 50 pixels are subtracted to account for the
-        #margins between the edges of the dark rectangle and the lighter line, and
-        #another 70 pixels are subtracted from that amount to allow for space between
-        #the pale rectangle horizontal edges and the text.
-        available_vertical_space_pixels = 6.5*4200/14-50-70
+        #The "x,y" coordinates of the top left corner of the rectangle are calculated based on the
+        #width of the covers of the book (14"-5.5"=8.5") and the pixel count is given using the known
+        #pixel numbers for the width of a Legal page in landscape mode (4200 pixels at 300 ppi).
+        #The width of the spine is then subracted in order to reach the left "x" coordinate with
+        #the subtraction of "cover_extra_pixels" pixels to account for the space needed to fold
+        #the spine and for the added thickness imparted by the glue. The top "y" coordinate is set
+        #at one inch from the top of the page, and the bottom "y" coordinate of the bottom right
+        #corner is set at one inche from the bottom of the page (8.5"-1"=7.5"). The bottom right
+        #corner "x" coordinate is calculated based on the width of the covers of the book (14"-5.5"=8.5")
+        #and the pixel count is determined using the Legal proportions as above, with "cover_extra_pixels"
+        #pixels being subtracted to avoid spillover of the black spine onto the cover page when folding
+        #the cover paper.
+        image_editable.rounded_rectangle([(8.5*300-width_of_spine_pixels-cover_extra_pixels,1.0*300),
+        (8.5*300-cover_extra_pixels,7.5*300)], radius=50, fill=cover_box_color)
 
-        #If either the length of the "spine_text" in pixels ("spine_text_length_pixels")
-        #exceeds the "available_vertical_space_pixels" or if the height of the spine font
-        #"spine_font_size" is above the "available_horizontal_space_pixels", the "spine_font_size"
-        #will be decremented until both dimensions are within range of the available space.
-        if (spine_text_length_pixels > available_vertical_space_pixels or
-        spine_font_size > available_horizontal_space_pixels):
-            while cover_title_font_size > 25:
-                if (image_editable.textlength(spine_text, font_spine) > available_vertical_space_pixels or
-                spine_font_size > available_horizontal_space_pixels):
-                    spine_font_size-=1
-                    font_spine = ImageFont.truetype(cover_font, spine_font_size)
-                else:
-                    spine_text_length_pixels = image_editable.textlength(spine_text, font_spine)
-                    break
+        #If the user hasn't specified some text to be included on the spine ("spine_text == None"),
+        #the author name is initialized to take up less space on the spine. First, the name is
+        #split at every space or hyphen, with inclusion of those characters as separate elements
+        #in the "author_name_split" list (given the use of parentheses). Then, the names are
+        #cycled through in the "for" loop and if the element isn't the last one in the list,
+        #meaning that it is not the last name, and if it isn't a space or a hyphen and if its
+        #length is more than 1 and the second character isn't a period, then that name is
+        #initialized.
+        if spine_text == None:
+            author_name_split = re.split(r"([' '-])", author)
+            for i in range(len(author_name_split)):
+                if (author_name_split[i] not in [" ", "-"] and (len(author_name_split[i]) > 1 and
+                author_name_split[i][1] != ".") and i < len(author_name_split)-1):
+                    author_name_split[i] = author_name_split[i][0] + "."
+            author_spine = "".join(author_name_split) + " — "
 
-        #The offset on the x and y axis are determined by subtracting the halfpoint of
-        #either dimension of the "spine_text" from the that of the available space in
-        #the corresponding dimension of the rectangle. In the case of "offset_y", the
-        #"pixels_from_bottom_cover_spine" are subtracted from it in order to bring the
-        #text further up from the bottom of the spine dark rectangle. This allows to
-        #fine-tune the automatic centering on the vertixal axis, given that the spine
-        #is fairly narrow and any unevenness are easily noticeable. A similar approach
-        #is taken with the variable "pixels_from_left_cover_spine", where pixels are
-        #added to the "x" axis (in the rotated image) to adjust the point where the
-        #spine text will start to be written.
-        offset_x = (round(available_vertical_space_pixels/2 - spine_text_length_pixels/2) +
-        pixels_from_left_cover_spine)
-        offset_y = (round(available_horizontal_space_pixels/2 - spine_font_size/2) +
-        cover_extra_pixels - pixels_from_bottom_cover_spine)
+            #The "spine_text" containing the text written on the spine is assembled.
+            spine_text = author_spine + title.strip()
+        #Similar to what was done above, the font size of the spine
+        #initialized to 100 pixels (unless the user specified something different),
+        #will be optimized to the available space.
+        #However, in this case both the horizontal and vertical
+        #space need to be considered, as only one line of text can fit
+        #onto the spine (so the string will not be split into two lines
+        #as for the title and author box).
+        font_spine = ImageFont.truetype(cover_font, spine_font_size)
 
-        #The image is outputted in PNG format.
-        image.save(title + " (cover).png", "PNG")
+        spine_text_length_pixels = image_editable.textlength(spine_text, font_spine)
 
-        #As text can only be written horizontally in Pillow, the image is reloaded and
-        #rotated 90 degrees clockwise in order to write the text on the spine.
-        image_rotated = (Image.open(title +
-        " (cover).png").convert("RGB").rotate(90, expand = True))
-        image_rotated_editable = ImageDraw.Draw(image_rotated)
+        #Similarly to the title and author box, a white rectangle 25 pixels distant from the edge
+        #of the black rectangle is drawn only if the number of pages is over 300, as its presence
+        #decreases the available space for the spine text.
+        if total_number_of_pages >= 300:
+            image_editable.rounded_rectangle([(8.5*300-width_of_spine_pixels+25-cover_extra_pixels,1.0*300+25),
+            (8.5*300-25-cover_extra_pixels,7.5*300-25)], radius=round((width_of_spine_pixels
+            -50)/width_of_spine_pixels*50), outline=cover_text_color, width=10)
 
-        #The starting x and y coordinates mirror the measurements in the unrotated image.
-        #The left side of the dark rectangle is then one inch from the top of the canvas
-        #in the rotated image, with 25 pixels added to reach the light line and another 35
-        #pixels to reach the point where the text will start to be written, with the addition
-        #of the "offset_x".
-        #The top of the dark rectangle now stands 5.5 inches from the top of the canvas
-        #(the origin 0,0 being in the top left corner), with 25 pixels added to reach the
-        #lighter line, and 28 pixels to reach the point where the text will start to be
-        #written, with the addition of the "offset_y"
-        spine_text_starting_x = round(1.0*4200/14+25 + 35 + offset_x)
-        spine_text_starting_y = round(5.5*4200/14+25+28 + offset_y)
+            #The available space on the horizontal axis is determined by subtracting the
+            #"x" coordinate of the bottom right corner of the spine dark rectangle from
+            #that of the top left corner. 70 pixels are subtracted from that amount to
+            #account for the space between the pale rectangle vertical edges and the text.
+            available_horizontal_space_pixels = (round((8.5*300-25)-
+            (8.5*300-width_of_spine_pixels+25))-70)
+            #As there is one inch above and below the dark rectangle, the height of the
+            #dark rectangle is equal to the height of the Legal page in landscape mode
+            #minus two inches (8.5"-2"=6.5"). 50 pixels are subtracted to account for the
+            #margins between the edges of the dark rectangle and the lighter line, and
+            #another 70 pixels are subtracted from that amount to allow for space between
+            #the pale rectangle horizontal edges and the text.
+            available_vertical_space_pixels = 6.5*300-50-70
 
-        image_rotated_editable.text((spine_text_starting_x, spine_text_starting_y),
-        spine_text, fill=cover_text_color, font=font_spine, align="center")
+            #If either the length of the "spine_text" in pixels ("spine_text_length_pixels")
+            #exceeds the "available_vertical_space_pixels" or if the height of the spine font
+            #"spine_font_size" is above the "available_horizontal_space_pixels", the "spine_font_size"
+            #will be decremented until both dimensions are within range of the available space.
+            if (spine_text_length_pixels > available_vertical_space_pixels or
+            spine_font_size > available_horizontal_space_pixels):
+                while cover_title_font_size > 25:
+                    if (image_editable.textlength(spine_text, font_spine) > available_vertical_space_pixels or
+                    spine_font_size > available_horizontal_space_pixels):
+                        spine_font_size-=1
+                        font_spine = ImageFont.truetype(cover_font, spine_font_size)
+                    else:
+                        spine_text_length_pixels = image_editable.textlength(spine_text, font_spine)
+                        break
 
-    #If the "total_number_of_pages" is below 300, the white rectangle will not be drawn to allow
-    #for more space for the text on a smaller spine. The margins are adjusted in consequence.
-    else:
-        #The "space_offset" was determined by linear regression between a number of pages
-        #of 299 and 200, and represents the combined number of pixels on either side of the
-        #spine text, between the edges of the long sides of the spine and the spine text. That
-        #margin decreases linearly down to zero at a page count of 200, below which the
-        #"space_offset" is set to 12 pixels.
-        space_offset = round(0.71*total_number_of_pages-142)
-        if total_number_of_pages < 200:
-            space_offset = 12
-        #The available space on the horizontal axis is determined by subtracting the
-        #"x" coordinate of the bottom right corner of the spine dark rectangle from
-        #that of the top left corner. "space_offset" pixels are subtracted from that amount to
-        #account for the space between the pale rectangle vertical edges and the text.
-        #As "space_offset" effectively acts as a margin, it is subtracted from the
-        #available horizontal pixels.
-        available_horizontal_space_pixels = (round((8.5*4200/14)-
-        (8.5*4200/14-width_of_spine_pixels))-space_offset)
+            #The offset on the x and y axis are determined by subtracting the halfpoint of
+            #either dimension of the "spine_text" from the that of the available space in
+            #the corresponding dimension of the rectangle. In the case of "offset_y", the
+            #"pixels_from_bottom_cover_spine" are subtracted from it in order to bring the
+            #text further up from the bottom of the spine dark rectangle. This allows to
+            #fine-tune the automatic centering on the vertixal axis, given that the spine
+            #is fairly narrow and any unevenness are easily noticeable. A similar approach
+            #is taken with the variable "pixels_from_left_cover_spine", where pixels are
+            #added to the "x" axis (in the rotated image) to adjust the point where the
+            #spine text will start to be written.
+            offset_x = (round(available_vertical_space_pixels/2 - spine_text_length_pixels/2) +
+            pixels_from_left_cover_spine)
+            offset_y = (round(available_horizontal_space_pixels/2 - spine_font_size/2) +
+            cover_extra_pixels - pixels_from_bottom_cover_spine)
 
-        #As there is one inch above and below the dark rectangle, the height of the
-        #dark rectangle is equal to the height of the Legal page in landscape mode
-        #minus two inches (8.5"-2"=6.5"). 70 pixels are subtracted from that amount
-        #to allow for space between the pale rectangle horizontal edges and the text.
-        available_vertical_space_pixels = 6.5*4200/14-70
+            #The image is outputted in PNG format.
+            image.save(title + " (cover).png", "PNG")
 
-        #If either the length of the "spine_text" in pixels ("spine_text_length_pixels")
-        #exceeds the "available_vertical_space_pixels" or if the height of the spine font
-        #"spine_font_size" is above the "available_horizontal_space_pixels", the "spine_font_size"
-        #will be decremented until both dimensions are within range of the available space.
-        if (spine_text_length_pixels > available_vertical_space_pixels or
-        spine_font_size > available_horizontal_space_pixels):
-            while spine_font_size > 25:
-                if (image_editable.textlength(spine_text, font_spine) >
-                available_vertical_space_pixels or
-                spine_font_size > available_horizontal_space_pixels):
-                    spine_font_size-=1
-                    font_spine = ImageFont.truetype(cover_font, spine_font_size)
-                else:
-                    break
-            spine_text_length_pixels = image_editable.textlength(spine_text, font_spine)
-        #The offset on the x and y axis are determined by subtracting the halfpoint of
-        #either dimension of the "spine_text" from the that of the available space in
-        #the corresponding dimension of the rectangle. In the case of "offset_y", the
-        #"pixels_from_bottom_cover_spine" are subtracted from it in order to bring the
-        #text further up from the bottom of the spine dark rectangle. This allows to
-        #fine-tune the automatic centering on the vertixal axis, given that the spine
-        #is fairly narrow and any unevenness are easily noticeable.
-        offset_x = round(available_vertical_space_pixels/2 - spine_text_length_pixels/2)
-        offset_y = (round(available_horizontal_space_pixels/2 - spine_font_size/2) +
-        cover_extra_pixels - pixels_from_bottom_cover_spine)
+            #As text can only be written horizontally in Pillow, the image is reloaded and
+            #rotated 90 degrees clockwise in order to write the text on the spine.
+            image_rotated = (Image.open(title +
+            " (cover).png").convert("RGB").rotate(90, expand = True))
+            image_rotated_editable = ImageDraw.Draw(image_rotated)
 
-        #The image is outputted in PNG format.
-        image.save(title + " (cover).png", "PNG")
+            #The starting x and y coordinates mirror the measurements in the unrotated image.
+            #The left side of the dark rectangle is then one inch from the top of the canvas
+            #in the rotated image, with 25 pixels added to reach the light line and another 35
+            #pixels to reach the point where the text will start to be written, with the addition
+            #of the "offset_x".
+            #The top of the dark rectangle now stands 5.5 inches from the top of the canvas
+            #(the origin 0,0 being in the top left corner), with 25 pixels added to reach the
+            #lighter line, and 28 pixels to reach the point where the text will start to be
+            #written, with the addition of the "offset_y"
+            spine_text_starting_x = round(1.0*300+25 + 35 + offset_x)
+            spine_text_starting_y = round(5.5*300+25+28 + offset_y)
 
-        #As text can only be written horizontally in Pillow, the image is reloaded and
-        #rotated 90 degrees clockwise in order to write the text on the spine.
-        image_rotated = (Image.open(title +
-        " (cover).png").convert("RGB").rotate(90, expand = True))
-        image_rotated_editable = ImageDraw.Draw(image_rotated)
+            image_rotated_editable.text((spine_text_starting_x, spine_text_starting_y),
+            spine_text, fill=cover_text_color, font=font_spine, align="center")
 
-        #The starting x and y coordinates mirror the measurements in the unrotated image.
-        #The left side of the dark rectangle is then one inch from the top of the canvas
-        #in the rotated image, with 35 pixels to reach the point where the text will start
-        #to be written, with the addition of the "offset_x".
-        #The top of the dark rectangle now stands 5.5 inches from the top of the canvas
-        #(the origin 0,0 being in the top left corner), with "space_offset/2" pixels to reach
-        #the point where the text will start to be written, with the addition of the "offset_y"
-        spine_text_starting_x = round(1.0*4200/14 + 35 + offset_x)
-        spine_text_starting_y = round(5.5*4200/14 + (space_offset/2) + offset_y)
+        #If the "total_number_of_pages" is below 300, the white rectangle will not be drawn to allow
+        #for more space for the text on a smaller spine. The margins are adjusted in consequence.
+        else:
+            #The "space_offset" was determined by linear regression between a number of pages
+            #of 299 and 200, and represents the combined number of pixels on either side of the
+            #spine text, between the edges of the long sides of the spine and the spine text. That
+            #margin decreases linearly down to zero at a page count of 200, below which the
+            #"space_offset" is set to 12 pixels.
+            space_offset = round(0.71*total_number_of_pages-142)
+            if total_number_of_pages < 200:
+                space_offset = 12
+            #The available space on the horizontal axis is determined by subtracting the
+            #"x" coordinate of the bottom right corner of the spine dark rectangle from
+            #that of the top left corner. "space_offset" pixels are subtracted from that amount to
+            #account for the space between the pale rectangle vertical edges and the text.
+            #As "space_offset" effectively acts as a margin, it is subtracted from the
+            #available horizontal pixels.
+            available_horizontal_space_pixels = (round((8.5*300)-
+            (8.5*300-width_of_spine_pixels))-space_offset)
 
-        image_rotated_editable.text((spine_text_starting_x, spine_text_starting_y),
-        spine_text, fill=cover_text_color, font=font_spine, align="center")
+            #As there is one inch above and below the dark rectangle, the height of the
+            #dark rectangle is equal to the height of the Legal page in landscape mode
+            #minus two inches (8.5"-2"=6.5"). 70 pixels are subtracted from that amount
+            #to allow for space between the pale rectangle horizontal edges and the text.
+            available_vertical_space_pixels = 6.5*300-70
 
-    #The image is once more outputted in PDF format, and the original
-    #unrotated PNG image is deleted.
-    image_rotated.save(title + " (cover).pdf", quality=100, resolution=300)
-    os.remove(title + " (cover).png")
+            #If either the length of the "spine_text" in pixels ("spine_text_length_pixels")
+            #exceeds the "available_vertical_space_pixels" or if the height of the spine font
+            #"spine_font_size" is above the "available_horizontal_space_pixels", the "spine_font_size"
+            #will be decremented until both dimensions are within range of the available space.
+            if (spine_text_length_pixels > available_vertical_space_pixels or
+            spine_font_size > available_horizontal_space_pixels):
+                while spine_font_size > 25:
+                    if (image_editable.textlength(spine_text, font_spine) >
+                    available_vertical_space_pixels or
+                    spine_font_size > available_horizontal_space_pixels):
+                        spine_font_size-=1
+                        font_spine = ImageFont.truetype(cover_font, spine_font_size)
+                    else:
+                        break
+                spine_text_length_pixels = image_editable.textlength(spine_text, font_spine)
+            #The offset on the x and y axis are determined by subtracting the halfpoint of
+            #either dimension of the "spine_text" from the that of the available space in
+            #the corresponding dimension of the rectangle. In the case of "offset_y", the
+            #"pixels_from_bottom_cover_spine" are subtracted from it in order to bring the
+            #text further up from the bottom of the spine dark rectangle. This allows to
+            #fine-tune the automatic centering on the vertixal axis, given that the spine
+            #is fairly narrow and any unevenness are easily noticeable.
+            offset_x = round(available_vertical_space_pixels/2 - spine_text_length_pixels/2)
+            offset_y = (round(available_horizontal_space_pixels/2 - spine_font_size/2) +
+            cover_extra_pixels - pixels_from_bottom_cover_spine)
+
+            #The image is outputted in PNG format.
+            image.save(title + " (cover).png", "PNG")
+
+            #As text can only be written horizontally in Pillow, the image is reloaded and
+            #rotated 90 degrees clockwise in order to write the text on the spine.
+            image_rotated = (Image.open(title +
+            " (cover).png").convert("RGB").rotate(90, expand = True))
+            image_rotated_editable = ImageDraw.Draw(image_rotated)
+
+            #The starting x and y coordinates mirror the measurements in the unrotated image.
+            #The left side of the dark rectangle is then one inch from the top of the canvas
+            #in the rotated image, with 35 pixels to reach the point where the text will start
+            #to be written, with the addition of the "offset_x".
+            #The top of the dark rectangle now stands 5.5 inches from the top of the canvas
+            #(the origin 0,0 being in the top left corner), with "space_offset/2" pixels to reach
+            #the point where the text will start to be written, with the addition of the "offset_y"
+            spine_text_starting_x = round(1.0*300 + 35 + offset_x)
+            spine_text_starting_y = round(5.5*300 + (space_offset/2) + offset_y)
+
+            image_rotated_editable.text((spine_text_starting_x, spine_text_starting_y),
+            spine_text, fill=cover_text_color, font=font_spine, align="center")
+
+        #The image is once more outputted in PDF format, and the original
+        #unrotated PNG image is deleted.
+        if not os.path.exists(os.path.join(cwd, "Notebooks")):
+            os.makedirs(os.path.join(cwd, "Notebooks"))
+        os.makedirs(os.path.join(cwd, "Notebooks", str(date.today()) +
+        "-" + title))
+        image_rotated.save(os.path.join(cwd, "Notebooks", str(date.today()) +
+        "-" + title, str(date.today()) + "-" + title + " (cover).pdf"),
+        quality=100, resolution=300)
+
+        os.remove(title + " (cover).png")
+
+    if perforated_cover == True:
+        #The image is outputted in PDF format
+        if not os.path.exists(os.path.join(cwd, "Notebooks")):
+            os.makedirs(os.path.join(cwd, "Notebooks"))
+        os.makedirs(os.path.join(cwd, "Notebooks", str(date.today()) +
+        "-" + title))
+        image.save(os.path.join(cwd, "Notebooks", str(date.today()) +
+        "-" + title, str(date.today()) + "-" + title + " (cover).pdf"),
+        quality=100, resolution=300)
+
 
     current_page = 1
-    unmatching_pages = 0
     page_numbers_list = list(range(1, number_of_pages+1))
+
+    #The function "get_line_y_coordinates" determines the "y" coordinates of
+    #the lines drawn for the ruled pages (college ruled, wide rule or custom ruled lines).
+    def get_line_y_coordinates(line_distance_inches, line_width):
+        #The starting "y" pixel is initialized as the
+        #highest pixel outside of the quarter-inch
+        #non-printable area ("top_margin_y_pixel"), and
+        #is incremented by the distance in-between lines
+        #(in pixels, "pixel_increment") after each run
+        #through the "while" loop. This allows to gather
+        #all of the line "y" coordinates.
+        starting_y = top_margin_y_pixel
+        pixel_increment = round(line_distance_inches*300 + line_width)
+        line_y_coordinates = []
+        while starting_y <= bottom_margin_y_pixel:
+            line_y_coordinates.append(starting_y)
+            starting_y += pixel_increment
+        return line_y_coordinates
+
+    #The "if" and "elif" statements below return the list of "y" coordinates
+    #("line_y_coordinates") and the list of the two last "y" coordinates ("two_last_y_lines").
+    #The latter will be important when lining up the lines of the ruled lines and
+    #dots or graph squares, so that they end at around the same "y" coordinate at the
+    #bottom of the page. The "line_width" in pixels, and the line spacing in inches
+    #get passed into the "get_line_y_coordinates" function (9/32 of an inch for
+    #college ruled, 11/32 of an inch for wide ruled and the "custom_line_distance_inches"
+    #for custom line width).
+    if college_ruled == True or college_ruled_left == True or college_ruled_right == True:
+        line_y_coordinates = get_line_y_coordinates(9/32, line_width)
+        two_last_y_lines = [line_y_coordinates[-2], line_y_coordinates[-1]]
+
+    elif wide_ruled == True or wide_ruled_left == True or wide_ruled_right == True:
+        line_y_coordinates = get_line_y_coordinates(11/32, line_width)
+        two_last_y_lines = [line_y_coordinates[-2], line_y_coordinates[-1]]
+
+    elif custom_ruled == True or custom_ruled_left == True or custom_ruled_right == True:
+        line_y_coordinates = get_line_y_coordinates(custom_line_distance_inches, line_width)
+        two_last_y_lines = [line_y_coordinates[-2], line_y_coordinates[-1]]
+
+    def get_line_y_coordinates_graph_paper(line_distance_inches, graph_line_width):
+        if ((graph_paper_left == True or graph_paper_right == True) and (dot_grid_left == True or
+        dot_grid_right == True)):
+            #The "dot_y_shift_down" variable stores the
+            #amount of pixels that will be added to the
+            #starting "y" coordinate.  The graph paper
+            #starting "y" coordinate needs to be shifted
+            #down by the same amount of pixels (dot_diameter_pixels)
+            #as the lines of the TOC were, so that both
+            #the TOC lines and the horizontal graph paper
+            #lines may line up with the dots.
+            starting_y = top_margin_y_pixel + dot_diameter_pixels
+        else:
+            starting_y = top_margin_y_pixel
+        pixel_increment = round(line_distance_inches*300)
+        line_y_coordinates_graph = []
+        while starting_y <= bottom_margin_y_pixel:
+            line_y_coordinates_graph.append(starting_y)
+            starting_y += pixel_increment
+        return line_y_coordinates_graph
+
+    if graph_paper == True or graph_paper_left == True or graph_paper_right == True:
+        line_y_coordinates_graph = get_line_y_coordinates_graph_paper(1/squares_per_inch, graph_line_width)
+        two_last_y_graph = [line_y_coordinates_graph[-2], line_y_coordinates_graph[-1]]
+
+    def get_dot_y_coordinates(inches_between_dots, dot_diameter_pixels):
+        #The "dot_y_shift_down" variable stores the
+        #amount of pixels that will be added to the
+        #starting "y" coordinate.  The value of
+        #"dot_y_shift_down" is only different than
+        #zero if there are no ruled lines in the notebook,
+        #so that the dots may line up with TOC ruled lines.
+        starting_y = top_margin_y_pixel + dot_y_shift_down
+        pixel_increment = round(inches_between_dots*300)
+        dot_y_coordinates = []
+        while starting_y <= bottom_margin_y_pixel:
+            dot_y_coordinates.append(starting_y)
+            starting_y += pixel_increment
+        return dot_y_coordinates
+
+    if dot_grid == True or dot_grid_left == True or dot_grid_right == True:
+        dot_y_coordinates = get_dot_y_coordinates(inches_between_dots, dot_diameter_pixels)
+        two_last_y_dots = [dot_y_coordinates[-2], dot_y_coordinates[-1]]
+
+    #The function "get_last_y" will compare the last "y" coordinate
+    #for any two ruled/dot/graph formats in order to line them up
+    #better at the bottom of the page.
+    def get_last_y(y_coordinates_1, y_coordinates_2):
+        #If the last "y" coordinate for "y_coordinate_2" is
+        #greater (further down the page, "y_coordinates_1[-1] <
+        #y_coordinates_2[-1]") with respect to that
+        #of "y_coordinate_1", then the two last "y" coordinates
+        #of "y_coordinates_2" are compared with the last "y"
+        #coordinate of "y_coordinate_1" in order to determine
+        #which is closest (which has a lower absolute value
+        #difference). If the penultimate "y" coordinate from
+        #"y_coordinates_2" is closest to the last coordinate of
+        #"y_coordinates_1", then the last coordinate from
+        #"y_coordinates_2" is removed ("y_coordinates_2.pop(-1)"),
+        #in order to keep the end of pages as even as possible.
+        if y_coordinates_1[-1] < y_coordinates_2[-1]:
+            if (abs(y_coordinates_2[-2]-y_coordinates_1[-1]) <
+            abs(y_coordinates_2[-1]-y_coordinates_1[-1])):
+                y_coordinates_2.pop(-1)
+                maximum_y_coordinate = max([y_coordinates_1[-1], y_coordinates_2[-1]])
+                return maximum_y_coordinate, y_coordinates_1, y_coordinates_2
+            else:
+                maximum_y_coordinate = max([y_coordinates_1[-1], y_coordinates_2[-1]])
+                return maximum_y_coordinate, y_coordinates_1, y_coordinates_2
+        #The reverse is done in the "elif" statement.
+        elif y_coordinates_1[-1] > y_coordinates_2[-1]:
+            if (abs(y_coordinates_1[-2]-y_coordinates_2[-1]) <
+            abs(y_coordinates_1[-1]-y_coordinates_2[-1])):
+                y_coordinates_1.pop(-1)
+                maximum_y_coordinate = max([y_coordinates_1[-1], y_coordinates_2[-1]])
+                return maximum_y_coordinate, y_coordinates_1, y_coordinates_2
+            else:
+                maximum_y_coordinate = max([y_coordinates_1[-1], y_coordinates_2[-1]])
+                return maximum_y_coordinate, y_coordinates_1, y_coordinates_2
+        else:
+            #since both last "y" coordinates are equal in value, one of them is returned
+            #as the "maximum_y_coordinate"
+            return y_coordinates_1[-1], y_coordinates_1, y_coordinates_2
+
+
+    #The function "get_last_y_TOC" will compare the last "y" coordinate
+    #for a ruled/dot/graph format with the last "y" coordinate of the TOC
+    #in order to line them up better at the bottom of the page. A separate
+    #function from "get_last_y" is required, as the "maximum_y_coordinate"
+    #only pertains to pages that could have page numbers, which is not
+    #the case for TOC pages. Thus, "y_coordinates_2[-1]" is always returned
+    #in this function for the value of "maximum_y_coordinate".
+    def get_last_y_TOC(TOC_line_spacing, y_coordinates_2):
+        if TOC_line_spacing[-1] < y_coordinates_2[-1]:
+            if (abs(y_coordinates_2[-2]-TOC_line_spacing[-1]) <
+            abs(y_coordinates_2[-1]-TOC_line_spacing[-1])):
+                y_coordinates_2.pop(-1)
+                return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
+            else:
+                return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
+        elif TOC_line_spacing[-1] > y_coordinates_2[-1]:
+            if (abs(TOC_line_spacing[-2]-y_coordinates_2[-1]) <
+            abs(TOC_line_spacing[-1]-y_coordinates_2[-1])):
+                TOC_line_spacing.pop(-1)
+                return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
+            else:
+                return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
+        else:
+            return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
+
+
+    #In the case of ScriptReader custom dot grid pages, the final line displayed on the page
+    #will not necessarily line up with the final "dot_y_coordinates" list item, so it isn't
+    #important to line it up with the TOC. That is to say that the dot grid lines that will
+    #be visible will be alternated with some empty lines, to accomodate for ascenders and
+    #descenders when handwriting. The "y" coordinate of the last line will then depend on
+    #the values of the dot spacing ("inches_between_dots") and number of empty lines in-between
+    #lines of text ("lines_between_text") variables.
+    if (scriptreader == True or scriptreader_left == True or scriptreader_right == True):
+        dot_y_coordinates = get_dot_y_coordinates(inches_between_dots, dot_diameter_pixels)
+        #The list of line indices where characters will be segmented ("text_line_numbers")
+        #is initialized including the zero index, as the first line of text needs to be
+        #on the first line, and then at a regular interval thereafter after that. There
+        #is a default of three empty lines in-between every line of text, to minimize
+        #the overlapping of ascenders and descenders of adjacent text lines.
+        text_line_numbers = [0, 1]
+        #Here there is one less dot than the total number of lines, so there is no
+        #need to add "+1" after "len(dot_y_coordinates)"
+        for j in range(len(dot_y_coordinates)):
+            #If the current "dot_y_coordinates" list index is prior to the penultimate
+            #list index (as room needs to be provided to add a "y" coordinate and the next one,
+            #so as to frame a line of text in-between two successive horizontal dot lines), and
+            #if the current index is equal to that of the last text line, plus the number
+            #of empty lines in-between text lines, then it is included in the list of
+            #text line indices "text_line_numbers".
+            if j < len(dot_y_coordinates)-2 and j == text_line_numbers[-1] + lines_between_text:
+                text_line_numbers.append(j)
+                text_line_numbers.append(j+1)
+        #If the lower "y" coordinate of the last set of two successive horizontal dot lines framing
+        #a text line, plus the pixel diameter of a dot, plus the vertical overlap allocated to
+        #accomodate for ascenders and descenders when handwriting (round(0.40*lines_between_text*
+        #inches_between_dots*300)) is inferior to the lower margin of the page ("bottom_margin_y_pixel"),
+        #it means that there is likely to be excessive space at the bottom of the page, relative to the space
+        #above the header. To improve the page layout esthetics, the whole page will be shifted down by the
+        #difference in pixels in-between the lower margin of the page and point described above, by adjusting
+        #the margins accordingly. All of the "y_coordinate" lists therefore need to be recalculated at this
+        #point, to reflect the changes in margins.
+        top_y_shift = 0
+        if (dot_y_coordinates[text_line_numbers[-1]] + dot_diameter_pixels +
+        round(0.40*lines_between_text*inches_between_dots*300) < bottom_margin_y_pixel):
+            top_y_shift = (bottom_margin_y_pixel-dot_y_coordinates[text_line_numbers[-1]] -
+            (dot_diameter_pixels + round(0.40*lines_between_text*inches_between_dots*300)))
+            heading_top_margin_y_pixel += top_y_shift
+            top_margin_y_pixel += top_y_shift
+            bottom_margin_y_pixel -+ (bottom_margin_y_pixel-dot_y_coordinates[text_line_numbers[-1]] +
+            (dot_diameter_pixels + round(0.40*lines_between_text*inches_between_dots*300)))
+            dot_y_coordinates = get_dot_y_coordinates(inches_between_dots, dot_diameter_pixels)
+            two_last_y_dots = [dot_y_coordinates[-2], dot_y_coordinates[-1]]
+            if college_ruled == True or college_ruled_left == True or college_ruled_right == True:
+                line_y_coordinates = get_line_y_coordinates(9/32, line_width)
+                two_last_y_lines = [line_y_coordinates[-2], line_y_coordinates[-1]]
+            elif wide_ruled == True or wide_ruled_left == True or wide_ruled_right == True:
+                line_y_coordinates = get_line_y_coordinates(11/32, line_width)
+                two_last_y_lines = [line_y_coordinates[-2], line_y_coordinates[-1]]
+            elif custom_ruled == True or custom_ruled_left == True or custom_ruled_right == True:
+                line_y_coordinates = get_line_y_coordinates(custom_line_distance_inches, line_width)
+                two_last_y_lines = [line_y_coordinates[-2], line_y_coordinates[-1]]
+            if graph_paper == True or graph_paper_left == True or graph_paper_right == True:
+                line_y_coordinates_graph = get_line_y_coordinates_graph_paper(1/squares_per_inch, graph_line_width)
+                two_last_y_graph = [line_y_coordinates_graph[-2], line_y_coordinates_graph[-1]]
+
+        #If the ScriptReader custom dot grid pages are used in combination with another type of
+        #page, then the same page number alignment will be used, taking into account the
+        #"page_number_vertical_center_point" that was calculated for the other type of page.
+        #Otherwise, if the user didn't input an inch measurement for "page_numbers_bottom_margin:",
+        #the default value of "2550-(75 + (page_numbers_font_size/2)*2/3)" for
+        #"page_numbers_bottom_margin_y_pixel" will be used.
+        maximum_y_coordinate = dot_y_coordinates[-1]
+        page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
+        if (page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and
+        (page_number_vertical_center_point - page_numbers_font_size/2 > 75)):
+            page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
+
+
+    #The three "if" and "elif" statements below determine what type of lines/dots
+    #are present on the left and right pages. If it is a combination of dots and
+    #graph paper ("if" statement), or dots and lines (first "elif" statement) or
+    #graph paper and lines (second "elif" statement), then the corresponding
+    #lists of "y" coordinates are passed into the "get_last_y" function in order
+    #to ensure that both pages end as closely as possible on the "y" axis.
+    if ((dot_grid == True or dot_grid_left == True or dot_grid_right == True) and
+    (graph_paper == True or graph_paper_left == True or graph_paper_right == True)):
+        maximum_y_coordinate, dot_y_coordinates, line_y_coordinates_graph = get_last_y(dot_y_coordinates, line_y_coordinates_graph)
+        #The variable "page_numbers_bottom_margin_y_pixel" designates
+        #the "y" coordinate mapping to the vertical middle point of the
+        #page numbers. By default, this variable is set as "None", and the
+        #user can either set it manually, or the code will determine whether there
+        #is sufficient space to vertically center the page numbers in the space
+        #in-between the last horizontal line and the bottom of the page. Should
+        #there be less than 75 pixels below the page number for it to be
+        #vertically centered, the code will automatically bring the text up,
+        #such that the lowest "y" pixel of the page number is above 75 pixels
+        #from the bottom of the page, thereby respecting the default 0.25 inch
+        #non-printable area for most printers.
+        page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
+        #If the user hasn't specified a value for "page_numbers_bottom_margin_y_pixel" and
+        #the center "y" coordinate of the page numbers, when half the font size in pixels are subtracted
+        #from it (to give the lowest "y" coordinate of the page numbers) is greater than 75 pixels
+        #(the equivalent of 0.25 inch at 300 ppi, 0.25 in * 2550 px / 8.5 in = 75 px), it means that
+        #there is enough room to center the text and the value of "page_numbers_bottom_margin_y_pixel"
+        #is set to that corresponding pixel.
+        if (page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and
+        (page_number_vertical_center_point - page_numbers_font_size/2 > 75)):
+            page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
+    elif ((dot_grid == True or dot_grid_left == True or dot_grid_right == True) and
+    (college_ruled == True or college_ruled_left == True or college_ruled_right == True or
+    wide_ruled == True or wide_ruled_left == True or wide_ruled_right == True or
+    custom_ruled == True or custom_ruled_left == True or custom_ruled_right == True)):
+        maximum_y_coordinate, dot_y_coordinates, line_y_coordinates = get_last_y(dot_y_coordinates, line_y_coordinates)
+        page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
+        if (page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and
+        (page_number_vertical_center_point - (page_numbers_font_size/2) > 75)):
+            page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
+    elif ((graph_paper == True or graph_paper_left == True or graph_paper_right == True) and
+    (college_ruled == True or college_ruled_left == True or college_ruled_right == True or
+    wide_ruled == True or wide_ruled_left == True or wide_ruled_right == True or
+    custom_ruled == True or custom_ruled_left == True or custom_ruled_right == True)):
+        maximum_y_coordinate, line_y_coordinates_graph, line_y_coordinates = get_last_y(line_y_coordinates_graph, line_y_coordinates)
+        page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
+        if (page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and
+        (page_number_vertical_center_point - page_numbers_font_size/2 > 75)):
+            page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
+    #If the notebook doesn't contain ruled pages and has dot grids or custom ScriptReader
+    #dot grids (left pages, right pages or both pages), then dots lining up with the horizontal
+    #lines of the dot grid pages will be drawn on the TOC. The function "get_dot_y_coordinates" is
+    #called instead of "get_line_y_coordinates" in this case. This will allow users to use the
+    #"High Five" indexing method, as the TOC lines and dots line up. Otherwise, the "y" coordinates
+    #of the lines of the TOC will be gathered using the "get_line_y_coordinates" function.
+    if (college_ruled == False and college_ruled_left == False and college_ruled_right == False and
+    wide_ruled == False and wide_ruled_left == False and wide_ruled_right == False and
+    custom_ruled == False and custom_ruled_left == False and custom_ruled_right == False and
+    (dot_grid == True or dot_grid_left == True or dot_grid_right == True)):
+        #The "dot_y_shift_down" variable stores the
+        #amount of pixels that will be added to the
+        #starting "y" coordinate.  The value of
+        #"dot_y_shift_down" is only different than
+        #zero if there are no ruled lines in the notebook,
+        #so that the dots may line up with TOC ruled lines.
+        dot_y_shift_down = dot_diameter_pixels
+        line_y_coordinates_TOC = get_dot_y_coordinates(TOC_line_spacing, TOC_line_width)
+    else:
+        line_y_coordinates_TOC = get_line_y_coordinates(TOC_line_spacing, TOC_line_width)
+
+    #The following "if" and "elif" statements deal with notebooks comprised of only one
+    #design (ruled lines, graph paper or dot grids) or combinations of any one of those
+    #designs with blank pages. The corresponding lists of "y" coordinates are passed into
+    #the "get_last_y" function in order to ensure that the TOC pages and notebook pages
+    #end as closely as possible on the "y" axis.
+    if ((dot_grid == True or dot_grid_left == True or dot_grid_right == True) and
+    (graph_paper == False and graph_paper_left == False and graph_paper_right == False) and
+    (college_ruled == False and college_ruled_left == False and college_ruled_right == False) and
+    (wide_ruled == False and wide_ruled_left == False and wide_ruled_right == False) and
+    (custom_ruled == False and custom_ruled_left == False and custom_ruled_right == False)):
+        maximum_y_coordinate, line_y_coordinates_TOC, dot_y_coordinates = get_last_y_TOC(line_y_coordinates_TOC, dot_y_coordinates)
+        page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
+        if (page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and
+        (page_number_vertical_center_point - page_numbers_font_size/2 > 75)):
+            page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
+    elif ((dot_grid == False and dot_grid_left == False and dot_grid_right == False) and
+    (graph_paper == True or graph_paper_left == True or graph_paper_right == True) and
+    (college_ruled == False and college_ruled_left == False and college_ruled_right == False) and
+    (wide_ruled == False and wide_ruled_left == False and wide_ruled_right == False) and
+    (custom_ruled == False and custom_ruled_left == False and custom_ruled_right == False)):
+        maximum_y_coordinate, line_y_coordinates_TOC, line_y_coordinates_graph = get_last_y_TOC(line_y_coordinates_TOC, line_y_coordinates_graph)
+        page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
+        if (page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and
+        (page_number_vertical_center_point - page_numbers_font_size/2 > 75)):
+            page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
+    elif ((dot_grid == False and dot_grid_left == False and dot_grid_right == False) and
+    (graph_paper == False and graph_paper_left == False and graph_paper_right == False) and
+    ((college_ruled == True or college_ruled_left == True or college_ruled_right == True) or
+    (wide_ruled == True or wide_ruled_left == True or wide_ruled_right == True) or
+    (custom_ruled == True or custom_ruled_left == True or custom_ruled_right == True))):
+        maximum_y_coordinate, line_y_coordinates_TOC, line_y_coordinates = get_last_y_TOC(line_y_coordinates_TOC, line_y_coordinates)
+        page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
+        if (page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and
+        (page_number_vertical_center_point - page_numbers_font_size/2 > 75)):
+            page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
+
+    #If the user has "erased" the default values for the TOC subheadings by passing in "TOC_pages_text:" and
+    #"TOC_subject_text:", then the first line or dot grid horizontal line of the TOC will start at index 0,
+    #Otherwise, a line is skipped to leave room for the subheadings.
+    if TOC_pages_text == "" and TOC_subject_text == "":
+        first_TOC_line_index = 0
+    else:
+        first_TOC_line_index = 1
 
     #A new blank canvas in landscape format (2550 pixels in height by 3300 pixels in width)
     #is created for every page of the notebook. An editable version is created to allow
     #for modifications ("blank_canvas_editable").
-    for i in range(1, round((total_number_of_pages)/2)+1):
+    for i in range(round((total_number_of_pages)/2)):
         blank_canvas = Image.open(os.path.join(cwd, "Blank Letter Landscape Canvas", "Blank Letter Landscape Canvas.jpg"))
         blank_canvas_editable = ImageDraw.Draw(blank_canvas)
-
-        #The function "get_line_y_coordinates" determines the "y" coordinates of
-        #the lines drawn for the ruled pages (college ruled, wide rule or custom ruled lines).
-        def get_line_y_coordinates(line_distance_inches, line_width):
-            #The starting "y" pixel is initialized as the
-            #highest pixel outside of the quarter-inch
-            #non-printable area ("top_margin_y_pixel"), and
-            #is incremented by the distance in-between lines
-            #(in pixels, "pixel_increment") after each run
-            #through the "while" loop. This allows to gather
-            #all of the line "y" coordinates.
-            starting_y = top_margin_y_pixel
-            pixel_increment = round(line_distance_inches*2550/8.5 + line_width)
-            line_y_coordinates = []
-            while starting_y <= bottom_margin_y_pixel:
-                line_y_coordinates.append(starting_y)
-                starting_y += pixel_increment
-            return line_y_coordinates
-
-        #The "if" and "elif" statements below return the list of "y" coordinates
-        #("line_y_coordinates") and the list of the two last "y" coordinates ("two_last_y_lines").
-        #The latter will be important when lining up the lines of the ruled lines and
-        #dots or graph squares, so that they end at around the same "y" coordinate at the
-        #bottom of the page. The "line_width" in pixels, and the line spacing in inches
-        #get passed into the "get_line_y_coordinates" function (9/32 of an inch for
-        #college ruled, 11/32 of an inch for wide ruled and the "custom_line_distance_inches"
-        #for custom line width).
-        if college_ruled == True or college_ruled_left == True or college_ruled_right == True:
-            line_y_coordinates = get_line_y_coordinates(9/32, line_width)
-            two_last_y_lines = [line_y_coordinates[-2], line_y_coordinates[-1]]
-
-        elif wide_ruled == True or wide_ruled_left == True or wide_ruled_right == True:
-            line_y_coordinates = get_line_y_coordinates(11/32, line_width)
-            two_last_y_lines = [line_y_coordinates[-2], line_y_coordinates[-1]]
-
-        elif custom_ruled == True or custom_ruled_left == True or custom_ruled_right == True:
-            line_y_coordinates = get_line_y_coordinates(custom_line_distance_inches, line_width)
-            two_last_y_lines = [line_y_coordinates[-2], line_y_coordinates[-1]]
-
-        def get_line_y_coordinates_graph_paper(line_distance_inches, graph_line_width):
-            if ((graph_paper_left == True or graph_paper_right == True) and (dot_grid_left == True or
-            dot_grid_right == True)):
-                #The "dot_y_shift_down" variable stores the
-                #amount of pixels that will be added to the
-                #starting "y" coordinate.  The graph paper
-                #starting "y" coordinate needs to be shifted
-                #down by the same amount of pixels (dot_diameter_pixels)
-                #as the lines of the TOC were, so that both
-                #the TOC lines and the horizontal graph paper
-                #lines may line up with the dots.
-                starting_y = top_margin_y_pixel + dot_diameter_pixels
-            else:
-                starting_y = top_margin_y_pixel
-            pixel_increment = round(line_distance_inches*2550/8.5)
-            line_y_coordinates_graph = []
-            while starting_y <= bottom_margin_y_pixel:
-                line_y_coordinates_graph.append(starting_y)
-                starting_y += pixel_increment
-            return line_y_coordinates_graph
-
-        if graph_paper == True or graph_paper_left == True or graph_paper_right == True:
-            line_y_coordinates_graph = get_line_y_coordinates_graph_paper(1/squares_per_inch, graph_line_width)
-            two_last_y_graph = [line_y_coordinates_graph[-2], line_y_coordinates_graph[-1]]
-
-        def get_dot_y_coordinates(inches_between_dots, dot_diameter_pixels):
-            #The "dot_y_shift_down" variable stores the
-            #amount of pixels that will be added to the
-            #starting "y" coordinate.  The value of
-            #"dot_y_shift_down" is only different than
-            #zero if there are no ruled lines in the notebook,
-            #so that the dots may line up with TOC ruled lines.
-            starting_y = top_margin_y_pixel + dot_y_shift_down
-            pixel_increment = round(inches_between_dots*2550/8.5)
-            dot_y_coordinates = []
-            while starting_y <= bottom_margin_y_pixel:
-                dot_y_coordinates.append(starting_y)
-                starting_y += pixel_increment
-            return dot_y_coordinates
-
-        if dot_grid == True or dot_grid_left == True or dot_grid_right == True:
-            dot_y_coordinates = get_dot_y_coordinates(inches_between_dots, dot_diameter_pixels)
-            two_last_y_dots = [dot_y_coordinates[-2], dot_y_coordinates[-1]]
-
-        #The function "get_last_y" will compare the last "y" coordinate
-        #for any two ruled/dot/graph formats in order to line them up
-        #better at the bottom of the page.
-        def get_last_y(y_coordinates_1, y_coordinates_2):
-            #If the last "y" coordinate for "y_coordinate_2" is
-            #greater (further down the page, "y_coordinates_1[-1] <
-            #y_coordinates_2[-1]") with respect to that
-            #of "y_coordinate_1", then the two last "y" coordinates
-            #of "y_coordinates_2" are compared with the last "y"
-            #coordinate of "y_coordinate_1" in order to determine
-            #which is closest (which has a lower absolute value
-            #difference). If the penultimate "y" coordinate from
-            #"y_coordinates_2" is closest to the last coordinate of
-            #"y_coordinates_1", then the last coordinate from
-            #"y_coordinates_2" is removed ("y_coordinates_2.pop(-1)"),
-            #in order to keep the end of pages as even as possible.
-            if y_coordinates_1[-1] < y_coordinates_2[-1]:
-                if (abs(y_coordinates_2[-2]-y_coordinates_1[-1]) <
-                abs(y_coordinates_2[-1]-y_coordinates_1[-1])):
-                    y_coordinates_2.pop(-1)
-                    maximum_y_coordinate = max([y_coordinates_1[-1], y_coordinates_2[-1]])
-                    return maximum_y_coordinate, y_coordinates_1, y_coordinates_2
-                else:
-                    maximum_y_coordinate = max([y_coordinates_1[-1], y_coordinates_2[-1]])
-                    return maximum_y_coordinate, y_coordinates_1, y_coordinates_2
-            #The reverse is done in the "elif" statement.
-            elif y_coordinates_1[-1] > y_coordinates_2[-1]:
-                if (abs(y_coordinates_1[-2]-y_coordinates_2[-1]) <
-                abs(y_coordinates_1[-1]-y_coordinates_2[-1])):
-                    y_coordinates_1.pop(-1)
-                    maximum_y_coordinate = max([y_coordinates_1[-1], y_coordinates_2[-1]])
-                    return maximum_y_coordinate, y_coordinates_1, y_coordinates_2
-                else:
-                    maximum_y_coordinate = max([y_coordinates_1[-1], y_coordinates_2[-1]])
-                    return maximum_y_coordinate, y_coordinates_1, y_coordinates_2
-            else:
-                #since both last "y" coordinates are equal in value, one of them is returned
-                #as the "maximum_y_coordinate"
-                return y_coordinates_1[-1], y_coordinates_1, y_coordinates_2
-
-
-        #The function "get_last_y_TOC" will compare the last "y" coordinate
-        #for a ruled/dot/graph format with the last "y" coordinate of the TOC
-        #in order to line them up better at the bottom of the page. A separate
-        #function from "get_last_y" is required, as the "maximum_y_coordinate"
-        #only pertains to pages that could have page numbers, which is not
-        #the case for TOC pages. Thus, "y_coordinates_2[-1]" is always returned
-        #in this function for the value of "maximum_y_coordinate".
-        def get_last_y_TOC(TOC_line_spacing, y_coordinates_2):
-            if TOC_line_spacing[-1] < y_coordinates_2[-1]:
-                if (abs(y_coordinates_2[-2]-TOC_line_spacing[-1]) <
-                abs(y_coordinates_2[-1]-TOC_line_spacing[-1])):
-                    y_coordinates_2.pop(-1)
-                    return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
-                else:
-                    return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
-            elif TOC_line_spacing[-1] > y_coordinates_2[-1]:
-                if (abs(TOC_line_spacing[-2]-y_coordinates_2[-1]) <
-                abs(TOC_line_spacing[-1]-y_coordinates_2[-1])):
-                    TOC_line_spacing.pop(-1)
-                    return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
-                else:
-                    return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
-            else:
-                return y_coordinates_2[-1], TOC_line_spacing, y_coordinates_2
-
-        #The three "if" and "elif" statements below determine what type of lines/dots
-        #are present on the left and right pages. If it is a combination of dots and
-        #graph paper ("if" statement), or dots and lines (first "elif" statement) or
-        #graph paper and lines (second "elif" statement), then the corresponding
-        #lists of "y" coordinates are passed into the "get_last_y" function in order
-        #to ensure that both pages end as closely as possible on the "y" axis.
-        if ((dot_grid == True or dot_grid_left == True or dot_grid_right == True) and
-        (graph_paper == True or graph_paper_left == True or graph_paper_right == True)):
-            maximum_y_coordinate, dot_y_coordinates, line_y_coordinates_graph = get_last_y(dot_y_coordinates, line_y_coordinates_graph)
-            #The variable "page_numbers_bottom_margin_y_pixel" designates
-            #the "y" coordinate mapping to the vertical middle point of the
-            #page numbers. By default, this variable is set as "None", and the
-            #user can either set it manually, or the code will determine whether there
-            #is sufficient space to vertically center the page numbers in the space
-            #in-between the last horizontal line and the bottom of the page. Should
-            #there be less than 75 pixels below the page number for it to be
-            #vertically centered, the code will automatically bring the text up,
-            #such that the lowest "y" pixel of the page number is above 75 pixels
-            #from the bottom of the page, thereby respecting the default 0.25 inch
-            #non-printable area for most printers.
-            page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
-            #If the user hasn't specified a value for "page_numbers_bottom_margin_y_pixel" and
-            #the center "y" coordinate of the page numbers, when half the font size in pixels are subtracted
-            #from it (to give the lowest "y" coordinate of the page numbers) is greater than 75 pixels
-            #(the equivalent of 0.25 inch at 300 ppi, 0.25 in * 2550 px / 8.5 in = 75 px), it means that
-            #there is enough room to center the text and the value of "page_numbers_bottom_margin_y_pixel"
-            #is set to that corresponding pixel.
-            if page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and (page_number_vertical_center_point - page_numbers_font_size/2 > 75):
-                page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
-        elif ((dot_grid == True or dot_grid_left == True or dot_grid_right == True) and
-        (college_ruled == True or college_ruled_left == True or college_ruled_right == True or
-        wide_ruled == True or wide_ruled_left == True or wide_ruled_right == True or
-        custom_ruled == True or custom_ruled_left == True or custom_ruled_right == True)):
-            maximum_y_coordinate, dot_y_coordinates, line_y_coordinates = get_last_y(dot_y_coordinates, line_y_coordinates)
-            page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
-            if page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and (page_number_vertical_center_point - (page_numbers_font_size/2) > 75):
-                page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
-        elif ((graph_paper == True or graph_paper_left == True or graph_paper_right == True) and
-        (college_ruled == True or college_ruled_left == True or college_ruled_right == True or
-        wide_ruled == True or wide_ruled_left == True or wide_ruled_right == True or
-        custom_ruled == True or custom_ruled_left == True or custom_ruled_right == True)):
-            maximum_y_coordinate, line_y_coordinates_graph, line_y_coordinates = get_last_y(line_y_coordinates_graph, line_y_coordinates)
-            page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
-            if page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and (page_number_vertical_center_point - page_numbers_font_size/2 > 75):
-                page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
-
-        #If the notebook doesn't contain ruled pages (apart from the TOC) and has dot grids
-        #(left pages, right pages or both pages), then the ruled lines on the TOC need to
-        #line up with the horizontal lines dots, so the function "get_dot_y_coordinates" is
-        #called instead of "get_line_y_coordinates". This will allow users to use the
-        #"High Five" indexing method, as the TOC lines and dots line up.
-        if (college_ruled == False and college_ruled_left == False and college_ruled_right == False and
-        wide_ruled == False and wide_ruled_left == False and wide_ruled_right == False and
-        custom_ruled == False and custom_ruled_left == False and custom_ruled_right == False and
-        (dot_grid == True or dot_grid_left == True or dot_grid_right == True)):
-            #The "dot_y_shift_down" variable stores the
-            #amount of pixels that will be added to the
-            #starting "y" coordinate.  The value of
-            #"dot_y_shift_down" is only different than
-            #zero if there are no ruled lines in the notebook,
-            #so that the dots may line up with TOC ruled lines.
-            dot_y_shift_down = dot_diameter_pixels
-            line_y_coordinates_TOC = get_dot_y_coordinates(TOC_line_spacing, TOC_line_width)
-        else:
-            line_y_coordinates_TOC = get_line_y_coordinates(TOC_line_spacing, TOC_line_width)
-
-        #The following "if" and "elif" statements deal with notebooks comprised of only one
-        #design (ruled lines, graph paper or dot grids) or combinations of any one of those
-        #designs with blank pages. The corresponding lists of "y" coordinates are passed into
-        #the "get_last_y" function in order to ensure that the TOC pages and notebook pages
-        #end as closely as possible on the "y" axis.
-        if ((dot_grid == True or dot_grid_left == True or dot_grid_right == True) and
-        (graph_paper == False and graph_paper_left == False and graph_paper_right == False) and
-        (college_ruled == False and college_ruled_left == False and college_ruled_right == False) and
-        (wide_ruled == False and wide_ruled_left == False and wide_ruled_right == False) and
-        (custom_ruled == False and custom_ruled_left == False and custom_ruled_right == False)):
-            maximum_y_coordinate, line_y_coordinates_TOC, dot_y_coordinates = get_last_y_TOC(line_y_coordinates_TOC, dot_y_coordinates)
-            page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
-            if page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and (page_number_vertical_center_point - page_numbers_font_size/2 > 75):
-                page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
-        elif ((dot_grid == False and dot_grid_left == False and dot_grid_right == False) and
-        (graph_paper == True or graph_paper_left == True or graph_paper_right == True) and
-        (college_ruled == False and college_ruled_left == False and college_ruled_right == False) and
-        (wide_ruled == False and wide_ruled_left == False and wide_ruled_right == False) and
-        (custom_ruled == False and custom_ruled_left == False and custom_ruled_right == False)):
-            maximum_y_coordinate, line_y_coordinates_TOC, line_y_coordinates_graph = get_last_y_TOC(line_y_coordinates_TOC, line_y_coordinates_graph)
-            page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
-            if page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and (page_number_vertical_center_point - page_numbers_font_size/2 > 75):
-                page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
-        elif ((dot_grid == False and dot_grid_left == False and dot_grid_right == False) and
-        (graph_paper == False and graph_paper_left == False and graph_paper_right == False) and
-        ((college_ruled == True or college_ruled_left == True or college_ruled_right == True) or
-        (wide_ruled == True or wide_ruled_left == True or wide_ruled_right == True) or
-        (custom_ruled == True or custom_ruled_left == True or custom_ruled_right == True))):
-            maximum_y_coordinate, line_y_coordinates_TOC, line_y_coordinates = get_last_y_TOC(line_y_coordinates_TOC, line_y_coordinates)
-            page_number_vertical_center_point = (2550-maximum_y_coordinate)/2
-            if page_numbers_bottom_margin_y_pixel == 2550-(75 + (page_numbers_font_size/2)*2/3) and (page_number_vertical_center_point - page_numbers_font_size/2 > 75):
-                page_numbers_bottom_margin_y_pixel = 2550 - page_number_vertical_center_point
-
-        if TOC_pages_text == "" and TOC_subject_text == "":
-            first_TOC_line_index = 0
-        else:
-            first_TOC_line_index = 1
 
         #If the user didn't discard the table of contents ("TOC_pages_list != []") by entering zero
         #pages ("TOC_pages_spacing:0") and if the first page in "TOC_pages_list" is an odd number
@@ -1783,7 +2038,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                 #Using the ImageDraw module, some ellipses are drawn, with a square dimensioned
                 #bounding box, giving the corresponding circles with a diameter of "dot_diameter_pixels".
                 #The dots are evenly spaced on the horizontal and vertical axes by a distance of
-                #"inches_between_dots*2550/8.5" pixels, as there are 2550 pixels in 8.5 inches at an image
+                #"inches_between_dots*300" pixels, as there are 2550 pixels in 8.5 inches at an image
                 #resolution of 300 ppi. The first horizontal line of dots at index 0 of "dot_y_coordinates"
                 #is skipped over in order to allow for some space for the "Pages" and "Subject" subheadings
                 #below the "Content" TOC heading.
@@ -1794,7 +2049,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                         dot_y_coordinates[j] - int(dot_diameter_pixels/2)),
                         (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[j] + int(dot_diameter_pixels/2))],
                         fill = dot_fill_color, outline = dot_outline_color, width = dot_line_width)
-                        starting_x -= round(inches_between_dots*2550/8.5)
+                        starting_x -= round(inches_between_dots*300)
             else:
                 #The lines are then drawn for each of the "y" coordinates within the "line_y_coordinates_TOC"
                 #list, starting at the "x" coordinate to the right of the gutter margin on the odd pages
@@ -1807,7 +2062,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
             #The headers will be centered, using the "x" coordinate located at
             #three quarter of the page width pixels ("3300*0.75") and "y" coordinate at the
             #top of the upper margin ("heading_top_margin_y_pixel").
-            blank_canvas_editable.text((3300*0.75, heading_top_margin_y_pixel),
+            blank_canvas_editable.text((round(3300/2 + 3300/4+gutter_margin_width_pixels/2-left_margin_x_pixel/2), heading_top_margin_y_pixel),
             TOC_heading_text, fill=TOC_heading_text_color, font=TOC_heading_font, anchor="ms")
             #The "page" and "subject" headings are written at a vertical distance 1.5 times the heading text size,
             #to ensure that it is always proportionally spaced to the "contents" heading. The horizontal alignment
@@ -1815,9 +2070,9 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
             #(3300/2 pixels, plus a third of the right page, with middle baseline "ms" anchoring.
             #On the other hand, the "subject" heading is written a two-thirds of the page width to the right
             #of the midway point of the page (3300/2+(3300/2*2/3).
-            blank_canvas_editable.text((2200, heading_top_margin_y_pixel + 1.5*heading_font_size),
+            blank_canvas_editable.text((round(3300/2 + 0.25*3300/2+gutter_margin_width_pixels/2-left_margin_x_pixel/2), heading_top_margin_y_pixel + 1.5*heading_font_size),
             TOC_pages_text, fill=TOC_pages_text_color, font=TOC_pages_font, anchor="ms")
-            blank_canvas_editable.text((2750, heading_top_margin_y_pixel + 1.5*heading_font_size),
+            blank_canvas_editable.text((round(3300/2+ 0.75*3300/2+gutter_margin_width_pixels/2-left_margin_x_pixel/2), heading_top_margin_y_pixel + 1.5*heading_font_size),
             TOC_subject_text, fill=TOC_subject_text_color, font=TOC_pages_font, anchor="ms")
         #A similar approach is taken if the first page in the "TOC_pages_list" is an even number.
         elif TOC_pages_list != [] and (TOC_pages_list[0])%2 == 0:
@@ -1833,16 +2088,16 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                         dot_y_coordinates[j] - int(dot_diameter_pixels/2)),
                         (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[j] + int(dot_diameter_pixels/2))],
                         fill = dot_fill_color, outline = dot_outline_color, width = dot_line_width)
-                        starting_x += round(inches_between_dots*2550/8.5)
+                        starting_x += round(inches_between_dots*300)
             else:
                 for j in range(first_TOC_line_index, len(line_y_coordinates_TOC)):
                     blank_canvas_editable.line([(left_margin_x_pixel, line_y_coordinates_TOC[j]),
                     (3300/2-gutter_margin_width_pixels, line_y_coordinates_TOC[j])], fill = TOC_line_color, width = line_width)
-            blank_canvas_editable.text((3300/4, heading_top_margin_y_pixel),
+            blank_canvas_editable.text((round(3300/4-gutter_margin_width_pixels/2+left_margin_x_pixel/2), heading_top_margin_y_pixel),
             TOC_heading_text, fill=TOC_heading_text_color, font=TOC_heading_font, anchor="ms")
-            blank_canvas_editable.text((550, heading_top_margin_y_pixel + 1.5*heading_font_size),
+            blank_canvas_editable.text((round(0.25*3300/2-gutter_margin_width_pixels/2+left_margin_x_pixel/2), heading_top_margin_y_pixel + 1.5*heading_font_size),
             TOC_pages_text, fill=TOC_pages_text_color, font=TOC_pages_font, anchor="ms")
-            blank_canvas_editable.text((1100, heading_top_margin_y_pixel + 1.5*heading_font_size),
+            blank_canvas_editable.text((round(0.75*3300/2-gutter_margin_width_pixels/2+left_margin_x_pixel/2), heading_top_margin_y_pixel + 1.5*heading_font_size),
             TOC_subject_text, fill=TOC_subject_text_color, font=TOC_pages_font, anchor="ms")
 
         #The user can choose to add a design to one or both pages by adding the JPEG image(s) to the
@@ -1853,6 +2108,17 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
         #The three "if" and "elif" statements below paste the design image onto both left and right pages
         #("if" statement), only on the left pages (first "elif" statement), or only on the right pages
         #("elif" statement).
+
+        #If the user has provided a custom template page JPEG image, it will be
+        #opened and an editable version will be instantiated. Two subsequent "if"
+        #statements are required here, as there may be different images for the
+        #left and right pages (if the designs are to be present on both pages,
+        #accordingly with the "").
+        if left_page_background_img != None:
+            left_custom_template_image = Image.open(left_page_background_img)
+        if right_page_background_img != None:
+            right_custom_template_image = Image.open(right_page_background_img)
+
         if custom_template_left_page == True and custom_template_right_page == True:
             #If there are no more table of contents pages to be drawn ("TOC_pages_list == []") or there are
             #still some table of contents pages to be drawn ("TOC_pages_list != []"), but the first page in
@@ -1930,7 +2196,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
             #of content pages to be drawn, or if the next TOC page is a right hand page (odd number).
             if TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 != 0):
                 starting_x = left_margin_x_pixel
-                pixel_increment = round(1/squares_per_inch*2550/8.5)
+                pixel_increment = round(1/squares_per_inch*300)
                 line_x_coordinates = []
                 #The list of "x" coordinates where to draw the vertical lines is stored in the
                 #"line_x_coordinates" list.
@@ -1973,7 +2239,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
             #contents, and the pages of the TOC alternate between even and odd pages.
             if TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 == 0):
                 starting_x = right_margin_x_pixel
-                pixel_increment = round(1/squares_per_inch*2550/8.5)
+                pixel_increment = round(1/squares_per_inch*300)
                 line_x_coordinates = []
                 while starting_x >= 3300/2+gutter_margin_width_pixels:
                     line_x_coordinates.append(starting_x)
@@ -2002,7 +2268,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
         elif (graph_paper == False and graph_paper_left == True and graph_paper_right == False and
         (TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 != 0))):
             starting_x = left_margin_x_pixel
-            pixel_increment = round(1/squares_per_inch*2550/8.5)
+            pixel_increment = round(1/squares_per_inch*300)
             line_x_coordinates = []
             while starting_x <= 3300/2-gutter_margin_width_pixels:
                 line_x_coordinates.append(starting_x)
@@ -2030,7 +2296,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
         elif (graph_paper == False and graph_paper_left == False and graph_paper_right == True and
         (TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 == 0))):
             starting_x = right_margin_x_pixel
-            pixel_increment = round(1/squares_per_inch*2550/8.5)
+            pixel_increment = round(1/squares_per_inch*300)
             line_x_coordinates = []
             while starting_x >= 3300/2+gutter_margin_width_pixels:
                 line_x_coordinates.append(starting_x)
@@ -2066,7 +2332,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                 #Using the ImageDraw module, some ellipses are drawn, with a square dimensioned
                 #bounding box, giving the corresponding circles with a diameter of "dot_diameter_pixels".
                 #The dots are evenly spaced on the horizontal and vertical axes by a distance of
-                #"inches_between_dots*2550/8.5" pixels, as there are 2550 pixels in 8.5 inches at an image
+                #"inches_between_dots*300" pixels, as there are 2550 pixels in 8.5 inches at an image
                 #resolution of 300 ppi.
                 for j in range(len(dot_y_coordinates)):
                     starting_x = left_margin_x_pixel
@@ -2075,7 +2341,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                         dot_y_coordinates[j] - int(dot_diameter_pixels/2)),
                         (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[j] + int(dot_diameter_pixels/2))],
                         fill = dot_fill_color, outline = dot_outline_color, width = dot_line_width)
-                        starting_x += round(inches_between_dots*2550/8.5)
+                        starting_x += round(inches_between_dots*300)
             #Similar to the lined and graph pages on even and odd pages above, a second "if"
             #statement deals with drawing dots on the odd (right) pages.
             if TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 == 0):
@@ -2086,7 +2352,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                         dot_y_coordinates[j] - int(dot_diameter_pixels/2)),
                         (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[j] + int(dot_diameter_pixels/2))],
                         fill = dot_fill_color, outline = dot_outline_color, width = dot_line_width)
-                        starting_x -= round(inches_between_dots*2550/8.5)
+                        starting_x -= round(inches_between_dots*300)
 
         elif (dot_grid == False and dot_grid_left == True and dot_grid_right == False and
         (TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 != 0))):
@@ -2097,7 +2363,7 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                     dot_y_coordinates[j] - int(dot_diameter_pixels/2)),
                     (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[j] + int(dot_diameter_pixels/2))],
                     fill = dot_fill_color, outline = dot_outline_color, width = dot_line_width)
-                    starting_x += round(inches_between_dots*2550/8.5)
+                    starting_x += round(inches_between_dots*300)
 
         elif (dot_grid == False and dot_grid_left == False and dot_grid_right == True and
         (TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 == 0))):
@@ -2108,7 +2374,114 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                     dot_y_coordinates[j] - int(dot_diameter_pixels/2)),
                     (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[j] + int(dot_diameter_pixels/2))],
                     fill = dot_fill_color, outline = dot_outline_color, width = dot_line_width)
-                    starting_x -= round(inches_between_dots*2550/8.5)
+                    starting_x -= round(inches_between_dots*300)
+
+
+        #The following "if" and "elif" statements deal with ScriptReader custom dot grids on both pages
+        #("if" statement), only on left pages (first "elif" statement) or only on right pages (second "elif" statement).
+        #ScriptReader is another github repo that enables the user to train a OCR convoluted neural network model on
+        #their handwriting, using customized dot grid sheets that have alternating dot grid horizontal lines with
+        #empty lines, to accomodate for the ascenders and descenders when handwriting.
+        if scriptreader == True and scriptreader_left == False and scriptreader_right == False:
+            #If all the pages of the table of contents have aldready been included ("TOC_pages_list == []"),
+            #or if the next TOC page is a right hand page (odd numbered, "TOC_pages_list[0]%2 != 0"),
+            #then the dots are drawn on the left (even numbered) pages.
+            if TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 != 0):
+                #Using the ImageDraw module, some ellipses are drawn, with a square dimensioned
+                #bounding box, giving the corresponding circles with a diameter of "dot_diameter_pixels".
+                #The dots are evenly spaced on the horizontal and vertical axes by a distance of
+                #"inches_between_dots*300" pixels, as there are 2550 pixels in 8.5 inches at an image
+                #resolution of 300 ppi.
+                for j in range(len(text_line_numbers)):
+                    starting_x = left_margin_x_pixel
+                    while starting_x <= 3300/2-gutter_margin_width_pixels:
+                        blank_canvas_editable.ellipse([(starting_x - int(dot_diameter_pixels/2),
+                        dot_y_coordinates[text_line_numbers[j]] - int(dot_diameter_pixels/2)),
+                        (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[text_line_numbers[j]] +
+                        int(dot_diameter_pixels/2))], fill = dot_fill_color, outline = dot_outline_color,
+                        width = dot_line_width)
+                        starting_x += round(inches_between_dots*300)
+                gutter_dot_x = starting_x - round(inches_between_dots*300)
+                #Black squares are drawn in the top corners of the page, for the segmentation
+                #code to be able to align the pages accurately. Of note, the squares nearest
+                #to the gutter margin are shifted horizontally to account for the fact that
+                #the dot nearest to the gutter margin may not be exactly on the gutter margin.
+                #As such, the outer vertical edges of the corner squares line up with the center
+                #of the first dots drawn from the outer edges of the page.
+                blank_canvas_editable.rectangle([(left_margin_x_pixel, left_margin_x_pixel+top_y_shift),
+                (left_margin_x_pixel+50, left_margin_x_pixel+50+top_y_shift)], fill="Black")
+                blank_canvas_editable.rectangle([(3300/2-gutter_margin_width_pixels-
+                (3300/2-gutter_margin_width_pixels-gutter_dot_x),
+                left_margin_x_pixel+top_y_shift), (3300/2-gutter_margin_width_pixels-
+                (3300/2-gutter_margin_width_pixels+50-gutter_dot_x), left_margin_x_pixel+50+top_y_shift)],
+                fill="Black")
+            #Similar to the lined and graph pages on even and odd pages above, a second "if"
+            #statement deals with drawing dots on the odd (right) pages.
+            if TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 == 0):
+
+                for j in range(len(text_line_numbers)):
+                    starting_x = right_margin_x_pixel
+                    while starting_x >= 3300/2+gutter_margin_width_pixels:
+                        blank_canvas_editable.ellipse([(starting_x - int(dot_diameter_pixels/2),
+                        dot_y_coordinates[text_line_numbers[j]] - int(dot_diameter_pixels/2)),
+                        (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[text_line_numbers[j]] +
+                        int(dot_diameter_pixels/2))], fill = dot_fill_color, outline = dot_outline_color,
+                        width = dot_line_width)
+                        starting_x -= round(inches_between_dots*300)
+                gutter_dot_x = starting_x + round(inches_between_dots*300)
+
+                blank_canvas_editable.rectangle([(right_margin_x_pixel-50, left_margin_x_pixel+top_y_shift),
+                (right_margin_x_pixel, left_margin_x_pixel+50+top_y_shift)], fill="Black")
+                blank_canvas_editable.rectangle([(3300/2+gutter_margin_width_pixels-
+                (gutter_dot_x-3300/2-gutter_margin_width_pixels-50),
+                left_margin_x_pixel+top_y_shift), (3300/2+gutter_margin_width_pixels+50-(gutter_dot_x-3300/2-
+                gutter_margin_width_pixels-50), left_margin_x_pixel+50+top_y_shift)],
+                fill="Black")
+
+        elif (scriptreader == False and scriptreader_left == True and scriptreader_right == False and
+        (TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 != 0))):
+
+            for j in range(len(text_line_numbers)):
+                starting_x = left_margin_x_pixel
+                while starting_x <= 3300/2-gutter_margin_width_pixels:
+                    blank_canvas_editable.ellipse([(starting_x - int(dot_diameter_pixels/2),
+                    dot_y_coordinates[text_line_numbers[j]] - int(dot_diameter_pixels/2)),
+                    (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[text_line_numbers[j]] +
+                    int(dot_diameter_pixels/2))], fill = dot_fill_color, outline = dot_outline_color,
+                    width = dot_line_width)
+                    starting_x += round(inches_between_dots*300)
+            gutter_dot_x = starting_x - round(inches_between_dots*300)
+
+            blank_canvas_editable.rectangle([(left_margin_x_pixel, left_margin_x_pixel+top_y_shift),
+            (left_margin_x_pixel+50, left_margin_x_pixel+50+top_y_shift)], fill="Black")
+            blank_canvas_editable.rectangle([(3300/2-gutter_margin_width_pixels-
+            (3300/2-gutter_margin_width_pixels-gutter_dot_x),
+            left_margin_x_pixel+top_y_shift), (3300/2-gutter_margin_width_pixels-
+            (3300/2-gutter_margin_width_pixels+50-gutter_dot_x), left_margin_x_pixel+50+top_y_shift)],
+            fill="Black")
+
+        elif (scriptreader == False and scriptreader_left == False and scriptreader_right == True and
+        (TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 == 0))):
+
+            for j in range(len(text_line_numbers)):
+                starting_x = right_margin_x_pixel
+                while starting_x >= 3300/2+gutter_margin_width_pixels:
+                    blank_canvas_editable.ellipse([(starting_x - int(dot_diameter_pixels/2),
+                    dot_y_coordinates[text_line_numbers[j]] - int(dot_diameter_pixels/2)),
+                    (starting_x + int(dot_diameter_pixels/2), dot_y_coordinates[text_line_numbers[j]] +
+                    int(dot_diameter_pixels/2))], fill = dot_fill_color, outline = dot_outline_color,
+                    width = dot_line_width)
+                    starting_x -= round(inches_between_dots*300)
+            gutter_dot_x = starting_x + round(inches_between_dots*300)
+
+            blank_canvas_editable.rectangle([(right_margin_x_pixel-50, left_margin_x_pixel+top_y_shift),
+            (right_margin_x_pixel, left_margin_x_pixel+50+top_y_shift)], fill="Black")
+            blank_canvas_editable.rectangle([(3300/2+gutter_margin_width_pixels-
+            (gutter_dot_x-3300/2-gutter_margin_width_pixels-50),
+            left_margin_x_pixel+top_y_shift), (3300/2+gutter_margin_width_pixels+50-(gutter_dot_x-3300/2-
+            gutter_margin_width_pixels-50), left_margin_x_pixel+50+top_y_shift)],
+            fill="Black")
+
 
         #The following "if" and "elif" statements deal with notebook page headers on both pages ("if" statement),
         #only on left (even) pages (first "elif" statement) or on right (odd) pages (second "elif" statement).
@@ -2128,7 +2501,8 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                 #Otherwise, the headings on left pages are centered, with 3300/4 pixels being the
                 #central "x" pixel on even pages.
                 else:
-                    blank_canvas_editable.text((3300/4, heading_top_margin_y_pixel),
+                    blank_canvas_editable.text((round(3300/4-gutter_margin_width_pixels/2+
+                    left_margin_x_pixel/2), heading_top_margin_y_pixel),
                     heading_text_left, fill=heading_text_color, font=heading_font, anchor="ms")
             #If all of the table of contents pages already have been included, or if the next
             #TOC page is even numbered, then the heading is written on the right (odd numbered) page.
@@ -2142,7 +2516,8 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
                 #Here the centered position on right pages is 3300*0.75 pixels (three quarters of
                 #the total pixel width of the canvas).
                 else:
-                    blank_canvas_editable.text((3300*0.75, heading_top_margin_y_pixel),
+                    blank_canvas_editable.text((round(3300/2 + 3300/4+gutter_margin_width_pixels/2-
+                    left_margin_x_pixel/2), heading_top_margin_y_pixel),
                     heading_text_right, fill=heading_text_color, font=heading_font, anchor="ms")
         #Similar to above, except that the headings are only written on the left hand pages, provided
         #that all of the TOC pages have been included, or that the next TOC page is odd numbered.
@@ -2254,16 +2629,38 @@ not in [0, None] and inches_per_ream_500_pages not in [0, None]):
             TOC_pages_list.pop(0)
 
         if no_merging == True:
-            blank_canvas.save(title + " (page " + str(current_page) + ").pdf", quality=100, resolution=300)
+            blank_canvas.save(os.path.join(cwd, "Notebooks", str(date.today()) +
+            "-" + title, str(date.today()) + "-" + title + " (page " +
+            str(current_page) + ").pdf"), quality=100, resolution=300)
         elif no_merging == False and current_page == 1:
-            blank_canvas.save(title + " (notebook pages).pdf", quality=100, resolution=300)
+            blank_canvas.save(os.path.join(cwd, "Notebooks", str(date.today()) +
+            "-" + title, str(date.today()) + "-" + title + " (notebook pages).pdf"),
+            quality=100, resolution=300)
         elif no_merging == False and current_page > 1:
-            blank_canvas.save(title + " (notebook pages).pdf", append=True, quality=100, resolution=300)
+            blank_canvas.save(os.path.join(cwd, "Notebooks", str(date.today()) +
+            "-" + title, str(date.today()) + "-" + title + " (notebook pages).pdf"),
+            append=True, quality=100, resolution=300)
         current_page += 1
 
-    print("\nYour notebook has been created successfully! Here are the colors used for the boxes and text of the cover:")
-    print("Cover boxes color: " + cover_box_color)
-    print("Cover text color: " + cover_text_color)
+    no_need_to_add_cover_box_color = False
+    no_need_to_add_cover_text_color = False
+    command_string = ""
+    for i in range(1, len(sys.argv)):
+        command_string += '"' + sys.argv[i] + '" '
+        if sys.argv[i][:16].lower() == "cover_box_color:":
+            no_need_to_add_cover_box_color = True
+        elif sys.argv[i][:17].lower() == "cover_text_color:":
+            no_need_to_add_cover_text_color = True
+    if no_need_to_add_cover_box_color == False:
+        command_string += ' "cover_box_color:' + cover_box_color + '"'
+    if no_need_to_add_cover_text_color == False:
+        command_string += ' "cover_text_color:' + cover_text_color + '"'
+
+    with open(os.path.join(cwd, "Notebooks", str(date.today()) + "-" + title,
+    "Parameters Passed In.txt"), "w") as text_file:
+        text_file.write('py printanotebook.py ' + command_string)
+
+    print("\nYour notebook has been created successfully!")
 
 #If the user hasn't provided a title, author and valid file name,
 #the following error message will be displayed on screen.
