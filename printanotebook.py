@@ -2647,9 +2647,9 @@ or perforated_cover == True)):
     command_string = ""
     for i in range(1, len(sys.argv)):
         command_string += '"' + sys.argv[i] + '" '
-        if sys.argv[i][:16].lower() == "cover_box_color:":
+        if sys.argv[i][:16].lower() == "cover_box_color:" or grayscale == True:
             no_need_to_add_cover_box_color = True
-        elif sys.argv[i][:17].lower() == "cover_text_color:":
+        if sys.argv[i][:17].lower() == "cover_text_color:" or grayscale == True:
             no_need_to_add_cover_text_color = True
     if no_need_to_add_cover_box_color == False:
         command_string += ' "cover_box_color:' + cover_box_color + '"'
@@ -2657,7 +2657,7 @@ or perforated_cover == True)):
         command_string += ' "cover_text_color:' + cover_text_color + '"'
 
     with open(os.path.join(cwd, "Notebooks", str(date.today()) + "-" + title,
-    "Parameters Passed In.txt"), "w") as text_file:
+    "Parameters Passed In.txt"), "w", encoding = "utf-8") as text_file:
         text_file.write('py printanotebook.py ' + command_string)
 
     print("\nYour notebook has been created successfully!")
