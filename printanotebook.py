@@ -273,6 +273,21 @@ dot_grid_right = False
 scriptreader_left = False
 scriptreader_right = False
 scriptreader = False
+#The "scriptreader_acetate" option will generate
+#notebook pages with dot grids for printing on
+#acetates (preferably on a laser printer), such
+#that the pages may be written on with an erasable
+#marker, submitted to OCR and erased afterwards.
+#The user would need to print the pages up to the halfway
+#point on the acetates, then flip the stack of acetates
+#and print the remaining pages on the other side, thus
+#allowing to generate two right hand pages with the same
+#gutter margin from a single acetate sheet. A vertical
+#dotted line will indicate where the user should cut the acetate,
+#in order to later perforate the half-letter acetate sheets
+#and use them in a binder.
+scriptreader_acetate = False
+
 #The list of line indices where characters will be segmented
 #if the ScriptReader option is selected ("text_line_numbers")
 #is initialized including the zero index, as the first line of text needs to be
@@ -578,6 +593,30 @@ if len(sys.argv) > 1:
                             dot_diameter_pixels = int(arguments[j])
                         elif j == 2:
                             dot_line_width = int(arguments[j])
+            elif sys.argv[i].lower()[:21] == "scriptreader_acetate:":
+                scriptreader_right = True
+                scriptreader_acetate = True
+                #If the user has selected to print some custom
+                #dot grid pages for use in the handwriting OCR
+                #application ScriptReader, they will likely want
+                #to perforate the pages for binding, and so a wider
+                #gutter margins of 0.75 inch is included by default,
+                #which may be overriden if the user has specified
+                #a different gutter margin as the fifth argument.
+                gutter_margin_width_pixels = 0.75*300
+                arguments = sys.argv[i].strip()[21:].split(":")
+                if arguments != [""]:
+                    for j in range(len(arguments)):
+                        if j == 0:
+                            inches_between_dots = float(arguments[j])
+                        elif j == 1:
+                            dot_diameter_pixels = int(arguments[j])
+                        elif j == 2:
+                            dot_line_width = int(arguments[j])
+                        elif j == 3:
+                            lines_between_text = int(arguments[j])
+                        elif j == 4:
+                            gutter_margin_width_pixels = round(float(arguments[j])*300)
             elif sys.argv[i].lower()[:18] == "scriptreader_left:":
                 scriptreader_left = True
                 #If the user has selected to print some custom
@@ -823,9 +862,25 @@ or perforated_cover == True)):
     #dividable by four (as one sheet of paper contains two pages on
     #each side). If this is not the case, the "number_of_pages" will
     #be incremented by one page until this criterion is met.
-    if (number_of_pages + TOC_pages)%4 != 0:
+    #This is only done if "scriptreader_acetate == False", as the
+    #page numbering proceeds differently in this case.
+    if (number_of_pages + TOC_pages)%4 != 0 and scriptreader_acetate == False:
         while (number_of_pages + TOC_pages)%4 != 0:
             number_of_pages += 1
+
+    elif scriptreader_acetate == True:
+        if heading_text_right == None:
+            heading_text_right = "Write on this side"
+        #As the pages will only be printed on the left-hand pages, the
+        #total number of TOC pages "TOC_pages" and notebook pages "number_of_pages"
+        #both need to be multiplied by two to reflect what the user actually wants.
+        #The code will actually generate the pages on the right-hand pages, but
+        #flip each image so that they are printed on the left-hand pages. This way,
+        #the user can write with erasable ink on the side that was not printed, with
+        #the text displayed in the right order.
+        TOC_pages = 2* TOC_pages
+        TOC_pages_list = list(range(1,TOC_pages+1))
+        number_of_pages = 2*number_of_pages
 
     #The "total_number_of_pages" will be useful in determining
     #the thickness of the spine later on in the code.
@@ -1839,7 +1894,7 @@ or perforated_cover == True)):
     #descenders when handwriting. The "y" coordinate of the last line will then depend on
     #the values of the dot spacing ("inches_between_dots") and number of empty lines in-between
     #lines of text ("lines_between_text") variables.
-    if (scriptreader == True or scriptreader_left == True or scriptreader_right == True):
+    if (scriptreader == True or scriptreader_left == True or scriptreader_right == True or scriptreader_acetate == True):
         dot_y_coordinates = get_dot_y_coordinates(inches_between_dots, dot_diameter_pixels)
         #The list of line indices where characters will be segmented ("text_line_numbers")
         #is initialized including the zero index, as the first line of text needs to be
@@ -2075,7 +2130,11 @@ or perforated_cover == True)):
             blank_canvas_editable.text((round(3300/2+ 0.75*3300/2+gutter_margin_width_pixels/2-left_margin_x_pixel/2), heading_top_margin_y_pixel + 1.5*heading_font_size),
             TOC_subject_text, fill=TOC_subject_text_color, font=TOC_pages_font, anchor="ms")
         #A similar approach is taken if the first page in the "TOC_pages_list" is an even number.
-        elif TOC_pages_list != [] and (TOC_pages_list[0])%2 == 0:
+        #Here the "scriptreader_acetate == False" needs to be met because the notebook printed on
+        #transparencies (acetates) can only be written on on one side, which is the right side by default.
+        #The code will flip the image when the "scriptreader_acetate" page will be completely generated,
+        #allowing it to be printed on the left-hand side and the user will write on the opposite right-hand side.
+        elif scriptreader_acetate == False and TOC_pages_list != [] and (TOC_pages_list[0])%2 == 0:
             if ((dot_grid == True or dot_grid_left == True or dot_grid_right == True) and
             (graph_paper == False and graph_paper_left == False and graph_paper_right == False) and
             (college_ruled == False and college_ruled_left == False and college_ruled_right == False) and
@@ -2498,11 +2557,14 @@ or perforated_cover == True)):
                 if heading_corner == True:
                     blank_canvas_editable.text((left_margin_x_pixel, heading_top_margin_y_pixel),
                     heading_text_left, fill=heading_text_color, font=heading_font, anchor="ls")
-                #Otherwise, the headings on left pages are centered, with 3300/4 pixels being the
-                #central "x" pixel on even pages.
+                #Otherwise, the headings on left pages are centered, by adding the left margin "x"
+                #pixels ("left_margin_x_pixel") to the center of the available space on the left page,
+                #excluding the margins. The available space on the page is calculated by taking
+                #the cental "x" coordinate (3300/2) and subtracting the pixels for the gutter martin
+                #and those for the right margin (which is equivalent to "left_margin_x_pixel").
                 else:
-                    blank_canvas_editable.text((round(3300/4-gutter_margin_width_pixels/2+
-                    left_margin_x_pixel/2), heading_top_margin_y_pixel),
+                    blank_canvas_editable.text((round(left_margin_x_pixel + (3300/2-gutter_margin_width_pixels-
+                    left_margin_x_pixel)/2), heading_top_margin_y_pixel),
                     heading_text_left, fill=heading_text_color, font=heading_font, anchor="ms")
             #If all of the table of contents pages already have been included, or if the next
             #TOC page is even numbered, then the heading is written on the right (odd numbered) page.
@@ -2513,12 +2575,16 @@ or perforated_cover == True)):
                 if heading_corner == True:
                     blank_canvas_editable.text((right_margin_x_pixel, heading_top_margin_y_pixel),
                     heading_text_right, fill=heading_text_color, font=heading_font, anchor="rs")
-                #Here the centered position on right pages is 3300*0.75 pixels (three quarters of
-                #the total pixel width of the canvas).
+                #The centering point for the headings on the right-hand pages is determined by taking
+                #the central point on the sheet (3300/2) and adding the pixels for the gutter margin,
+                #and then the center of the available space on the right page. The available space on
+                #the page is calculated by taking the cental "x" coordinate (3300/2) and subtracting
+                #the pixels for the gutter martin and those for the left margin ("left_margin_x_pixel").
                 else:
-                    blank_canvas_editable.text((round(3300/2 + 3300/4+gutter_margin_width_pixels/2-
-                    left_margin_x_pixel/2), heading_top_margin_y_pixel),
+                    blank_canvas_editable.text((round(3300/2 + gutter_margin_width_pixels +
+                    (3300/2-gutter_margin_width_pixels-left_margin_x_pixel)/2), heading_top_margin_y_pixel),
                     heading_text_right, fill=heading_text_color, font=heading_font, anchor="ms")
+
         #Similar to above, except that the headings are only written on the left hand pages, provided
         #that all of the TOC pages have been included, or that the next TOC page is odd numbered.
         elif (heading_text_left != None and
@@ -2527,7 +2593,8 @@ or perforated_cover == True)):
                 blank_canvas_editable.text((left_margin_x_pixel, heading_top_margin_y_pixel),
                 heading_text_left, fill=heading_text_color, font=heading_font, anchor="ls")
             else:
-                blank_canvas_editable.text((3300/4, heading_top_margin_y_pixel),
+                blank_canvas_editable.text((round(left_margin_x_pixel + (3300/2-gutter_margin_width_pixels-
+                left_margin_x_pixel)/2), heading_top_margin_y_pixel),
                 heading_text_left, fill=heading_text_color, font=heading_font, anchor="ms")
 
         #Similar to above, except that the headings are only written on the right hand pages, provided
@@ -2538,7 +2605,8 @@ or perforated_cover == True)):
                 blank_canvas_editable.text((right_margin_x_pixel, heading_top_margin_y_pixel),
                 heading_text_right, fill=heading_text_color, font=heading_font, anchor="rs")
             else:
-                blank_canvas_editable.text((3300*0.75, heading_top_margin_y_pixel),
+                blank_canvas_editable.text((round(3300/2 + gutter_margin_width_pixels +
+                (3300/2-gutter_margin_width_pixels-left_margin_x_pixel)/2), heading_top_margin_y_pixel),
                 heading_text_right, fill=heading_text_color, font=heading_font, anchor="ms")
 
         #The following "if" and "elif" statements deal with page numbering either on both pages
@@ -2549,7 +2617,7 @@ or perforated_cover == True)):
         #anchoring ("lm" or "rm", respectively), in order to simplify the automatic vertical
         #centering of the page numbers in the available space in-between the last horizontal
         #line and the bottom of the page.
-        if page_numbers != None and page_numbers_left == None and page_numbers_right == None:
+        if page_numbers != None and page_numbers_left == None and page_numbers_right == None and scriptreader_acetate == False:
             #If the list of page numbers to be written isn't empty, meaning that either all page
             #numbers have already been written down or the user didn't choose to write page
             #numbers ("page_numbers_list != []") and if the next descending page number to be
@@ -2588,7 +2656,7 @@ or perforated_cover == True)):
         #A similar logic to the above (page_numbers != None) is applied here, except that whenever
         #the right page number is encountered, it isn't written on the page and is popped out from
         #the "page_numbers_list".
-        elif page_numbers_left != None and page_numbers == None and page_numbers_right == None:
+        elif page_numbers_left != None and page_numbers == None and page_numbers_right == None and scriptreader_acetate == False:
             if page_numbers_list != [] and page_numbers_list[-1]%2 != 0:
                 if TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 != 0):
                     blank_canvas_editable.text((left_margin_x_pixel, page_numbers_bottom_margin_y_pixel),
@@ -2606,7 +2674,7 @@ or perforated_cover == True)):
         #A similar logic to the above (page_numbers != None) is applied here, except that whenever
         #the left page number is encountered, it isn't written on the page and is popped out from
         #the "page_numbers_list".
-        elif page_numbers_right != None and page_numbers == None and page_numbers_left == None:
+        elif page_numbers_right != None and page_numbers == None and page_numbers_left == None and scriptreader_acetate == False:
             if page_numbers_list != [] and page_numbers_list[-1]%2 != 0:
                 if TOC_pages_list == [] or (TOC_pages_list != [] and TOC_pages_list[0]%2 != 0):
                     page_numbers_list.pop(0)
@@ -2621,13 +2689,33 @@ or perforated_cover == True)):
                     blank_canvas_editable.text((right_margin_x_pixel, page_numbers_bottom_margin_y_pixel),
                     str(page_numbers_list[0]), fill=page_numbers_text_color, font=page_numbers_font, anchor="rm")
                     page_numbers_list.pop(0)
+        elif scriptreader_acetate == True and page_numbers_list != [] and TOC_pages_list == []:
+            blank_canvas_editable.text((right_margin_x_pixel, page_numbers_bottom_margin_y_pixel),
+            str(page_numbers_list[0]), fill=page_numbers_text_color, font=page_numbers_font, anchor="rm")
+            page_numbers_list.pop(0)
 
         #If the list of table of contents pages ("TOC_pages_list")
         #isn't empty, the first page (that was just included in the
         #current "blank_canvas_editable") is removed from the list.
-        if TOC_pages_list != []:
+        if TOC_pages_list != [] and scriptreader_acetate == False:
             TOC_pages_list.pop(0)
+        if scriptreader_acetate == True:
+            if TOC_pages_list != []:
+                #Both the odd and even-numbered page needs to be removed
+                #from "TOC_pages_list"
+                try:
+                    TOC_pages_list.pop(0)
+                    TOC_pages_list.pop(0)
+                #If the number of pages is odd-numbered, the code won't be
+                #able to perform two successive pops at the very last page.
+                except:
+                    TOC_pages_list.pop(0)
 
+            blank_canvas_editable.line([(3300/2, 0), (3300/2, 2550)], fill="Gainsboro", width=5)
+            #The page will be mirrored, in order to print on the back side of that
+            #you will be writing on. This way, the toner will not be scratched when
+            #writing on the page.
+            blank_canvas = ImageOps.mirror(blank_canvas)
         if no_merging == True:
             blank_canvas.save(os.path.join(cwd, "Notebooks", str(date.today()) +
             "-" + title, str(date.today()) + "-" + title + " (page " +
