@@ -596,6 +596,14 @@ if len(sys.argv) > 1:
             elif sys.argv[i].lower()[:21] == "scriptreader_acetate:":
                 scriptreader_right = True
                 scriptreader_acetate = True
+                #The counter "current_acetate_page_number" will keep track
+                #of the acetate sheet number (two pages per acetate sheet),
+                #in order to only draw a vertical line on one side of the acetate
+                #sheet (as an indicator of where to cut the acetate in half).
+                #Otherwise, if the lines were drawn on both sides of the
+                #acetate, it would end up looking messy, as they would likely
+                #not line up.
+                current_acetate_page_number = 0
                 #If the user has selected to print some custom
                 #dot grid pages for use in the handwriting OCR
                 #application ScriptReader, they will likely want
@@ -2710,8 +2718,16 @@ or perforated_cover == True)):
                 #able to perform two successive pops at the very last page.
                 except:
                     TOC_pages_list.pop(0)
-
-            blank_canvas_editable.line([(3300/2, 0), (3300/2, 2550)], fill="Gainsboro", width=5)
+            #The counter "current_acetate_page_number" keeps track
+            #of the acetate sheet number (two pages per acetate sheet),
+            #in order to only draw a vertical line on one side of the acetate
+            #sheet (as an indicator of where to cut the acetate in half).
+            #Otherwise, if the lines were drawn on both sides of the
+            #acetate, it would end up looking messy, as they would likely
+            #not line up.
+            if current_acetate_page_number%2 == 0:
+                blank_canvas_editable.line([(3300/2, 0), (3300/2, 2550)], fill="Gainsboro", width=5)
+            current_acetate_page_number += 1
             #The page will be mirrored, in order to print on the back side of that
             #you will be writing on. This way, the toner will not be scratched when
             #writing on the page.
