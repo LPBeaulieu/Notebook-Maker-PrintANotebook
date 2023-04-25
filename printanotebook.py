@@ -879,6 +879,13 @@ or perforated_cover == True)):
     elif scriptreader_acetate == True:
         if heading_text_right == None:
             heading_text_right = "Write on this side"
+        if page_numbers_text_color == "LightSteelBlue":
+            page_numbers_text_color = "LightSlateGrey"
+        if dot_fill_color == "LightSlateGrey"
+            dot_fill_color = "DimGrey"
+        if dot_outline_color == "LightSlateGrey"
+            dot_outline_color = "DimGrey"
+
         #As the pages will only be printed on the left-hand pages, the
         #total number of TOC pages "TOC_pages" and notebook pages "number_of_pages"
         #both need to be multiplied by two to reflect what the user actually wants.
