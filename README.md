@@ -16,7 +16,9 @@ PrintANotebook lets you create your own notebooks, complete with page numbering 
 ---
 
 <p align="left"> <b>PrintANotebook</b> is a tool allowing you to create your own personalized notebooks, complete with page numbering, personalized headings, and your choice of any combination of either blank pages, ruled lines, dot grid or graph pages. 
-You can even select your own designs to create some nifty planners! <b>PrintANotebook</b> also lets you personalize the cover with your favorite graphic design, and the text of your choosing on the front cover and spine of the notebook!</p>
+You can even select your own designs to create some nifty planners! <b>PrintANotebook</b> also lets you personalize the cover with your favorite graphic design, and the text of your choosing on the front cover and spine of the notebook!
+<br><br>
+  Be sure to also check out my other gihub repo <b>ScriptReader</b> (https://github.com/LPBeaulieu/Handwriting-OCR-ScriptReader), for instructions on how to perform Optical Character Recognition (OCR) on some text that you wrote in a specially designed notebook created with <b>PrintANotebook</b>. You could even print the notebook on transparencies and use my DIY biodegradable, wet erase fountain pen ink! Check out my Instructables article for the ink recipe: https://www.instructables.com/Recipe-for-a-Multipurpose-Biodegradable-and-Wet-Er/.</p>
 <br> 
 
 
