@@ -9,7 +9,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 import re
 import sys
 from datetime import date
-
+import math
 
 cwd = os.getcwd()
 
@@ -881,9 +881,9 @@ or perforated_cover == True)):
             heading_text_right = "Write on this side"
         if page_numbers_text_color == "LightSteelBlue":
             page_numbers_text_color = "LightSlateGrey"
-        if dot_fill_color == "LightSlateGrey"
+        if dot_fill_color == "LightSlateGrey":
             dot_fill_color = "DimGrey"
-        if dot_outline_color == "LightSlateGrey"
+        if dot_outline_color == "LightSlateGrey":
             dot_outline_color = "DimGrey"
 
         #As the pages will only be printed on the left-hand pages, the
@@ -1257,38 +1257,31 @@ or perforated_cover == True)):
     #decremented by one unit in the "while" loop below until each of the split lines
     #of the title can fit within the black rectangle, down to a minimum font size of 50.
     cover_title_height = cover_title_font_size
-    if title_length_pixels > available_horizontal_space_pixels:
+    if re.search('[" "]{2,}', title) == None and title_length_pixels > available_horizontal_space_pixels:
         title_words = re.split(r"( )", title)
         number_of_title_words = len(title_words)
-        middle_index_in_title = len(title)//2
-        character_count = 0
-        word_delimitor = None
-        for i in range(len(title_words)):
-            if character_count <= middle_index_in_title - (len(title_words[i])+1):
-                character_count += len(title_words[i])
-            else:
-                word_delimitor = i
-                break
-        first_half_words = title_words[:word_delimitor]
+        #The middle index in the title will be the threshold
+        #for including a carriage return in the title.
+        middle_index_in_title = math.ceil(len(title_words)/2)
+        first_half_words = title_words[:middle_index_in_title]
         first_half_words_string = "".join(first_half_words)
-        second_half_words = title_words[word_delimitor:]
+        second_half_words = title_words[middle_index_in_title:]
         second_half_words_string = "".join(second_half_words)
-        if first_half_words != []:
-            adjusted_title_cover = first_half_words_string + "\n" + second_half_words_string
+        adjusted_title_cover = first_half_words_string + "\n" + second_half_words_string
 
-            while cover_title_font_size > 50:
-                if (image_editable.textlength(first_half_words_string, font_title) >
-                available_horizontal_space_pixels or
-                image_editable.textlength(second_half_words_string, font_title) >
-                available_horizontal_space_pixels):
-                    cover_title_font_size-=1
-                    font_title = ImageFont.truetype(cover_font, cover_title_font_size)
-                else:
-                    #If the title was split, the "cover_title_height" variable is updated to
-                    #reflect that the text now spans two lines, including the spacing
-                    #in-between the lines ("cover_title_line_spacing").
-                    cover_title_height = 2*cover_title_font_size + cover_title_line_spacing
-                    break
+        while cover_title_font_size > 50:
+            if (image_editable.textlength(first_half_words_string, font_title) >
+            available_horizontal_space_pixels or
+            image_editable.textlength(second_half_words_string, font_title) >
+            available_horizontal_space_pixels):
+                cover_title_font_size-=1
+                font_title = ImageFont.truetype(cover_font, cover_title_font_size)
+            else:
+                #If the title was split, the "cover_title_height" variable is updated to
+                #reflect that the text now spans two lines, including the spacing
+                #in-between the lines ("cover_title_line_spacing").
+                cover_title_height = 2*cover_title_font_size + cover_title_line_spacing
+                break
         #If there is only one word in the title and that word happens to be very long,
         #then instead of splitting the title in half, the font size "cover_title_font_size"
         #will be decremented until the fitle fits within the cover box.
@@ -1318,6 +1311,34 @@ or perforated_cover == True)):
         .replace("\n", ""), font_title))
         cover_title_offset = (round((right_margin_cover_text-left_margin_cover_text)/2-
         max([first_half_words_string_length, second_half_words_string_length])/2))
+
+    #Should the title contain sequences of at least two
+    #consecutive spaces, which indicate that the user
+    #wants to manually insert line breaks at these locations,
+    #these instances are changed for a carriage_return ("\n"),
+    #and the length of the longest line would be determined
+    #by splitting the resulting string along the "\n" dividers.
+    #The font size of the title is then automatically adjusted,
+    #such that the longest line may fit within the available
+    #horizontal space.
+    else:
+        adjusted_title_cover = re.sub('[" "]{2,}', "\n", title)
+        cover_title_lines = [line for line in re.split(r"\n", adjusted_title_cover)]
+        longest_title_line = sorted(cover_title_lines, key=len)[-1]
+        while cover_title_font_size > 50:
+            if (image_editable.textlength(longest_title_line, font_title) >
+            available_horizontal_space_pixels):
+                cover_title_font_size-=1
+                font_title = ImageFont.truetype(cover_font, cover_title_font_size)
+            else:
+                #The "cover_title_height" variable is updated to
+                #reflect that the text now spans multiple lines, including the spacing
+                #in-between the lines ("cover_title_line_spacing").
+                cover_title_height = len(cover_title_lines)*cover_title_font_size + cover_title_line_spacing
+                break
+        cover_title_offset = (round((right_margin_cover_text-left_margin_cover_text)/2-
+        image_editable.textlength(longest_title_line, font_title)/2))
+
 
     #As the author name font size should be at most 75% of that of the title,
     #the initial font size is set to 75% of "cover_title_font_size".
