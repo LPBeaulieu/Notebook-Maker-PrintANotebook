@@ -65,6 +65,7 @@ py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text
 ```
 <br><br>
 
+You may choose to add line breaks at certain points in the title by including at least two successive spaces in-between the words that you want to be split on different lines, when passing in the "title:Your Title Here" argument in the Python call. 
 
 ![Figure 3](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Dot%20grid%20on%20both%20pages%20with%20same%20headings%20on%20both%20pages.jpg)<hr> <b>Figure 3.</b> In order to add the same heading to both left and right pages, you would add the heading text, preceded by the "heading_text:" argument:
 <br>
