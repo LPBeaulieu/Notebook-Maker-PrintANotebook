@@ -594,6 +594,7 @@ if len(sys.argv) > 1:
                         elif j == 2:
                             dot_line_width = int(arguments[j])
             elif sys.argv[i].lower()[:21] == "scriptreader_acetate:":
+                perforated_cover = True
                 scriptreader_right = True
                 scriptreader_acetate = True
                 #The counter "current_acetate_page_number" will keep track
@@ -626,6 +627,7 @@ if len(sys.argv) > 1:
                         elif j == 4:
                             gutter_margin_width_pixels = round(float(arguments[j])*300)
             elif sys.argv[i].lower()[:18] == "scriptreader_left:":
+                perforated_cover = True
                 scriptreader_left = True
                 #If the user has selected to print some custom
                 #dot grid pages for use in the handwriting OCR
@@ -649,6 +651,7 @@ if len(sys.argv) > 1:
                         elif j == 4:
                             gutter_margin_width_pixels = round(float(arguments[j])*300)
             elif sys.argv[i].lower()[:19] == "scriptreader_right:":
+                perforated_cover = True
                 scriptreader_right = True
                 gutter_margin_width_pixels = 0.75*300
                 arguments = sys.argv[i].strip()[19:].split(":")
@@ -665,6 +668,7 @@ if len(sys.argv) > 1:
                         elif j == 4:
                             gutter_margin_width_pixels = round(float(arguments[j])*300)
             elif sys.argv[i].lower()[:13] == "scriptreader:":
+                perforated_cover = True
                 scriptreader = True
                 gutter_margin_width_pixels = 0.75*300
                 arguments = sys.argv[i].strip()[13:].split(":")
@@ -963,6 +967,12 @@ or perforated_cover == True)):
     if page_numbers_bottom_margin_y_pixel == None:
         page_numbers_bottom_margin_y_pixel = 2550-(75 + (page_numbers_font_size/2)*2/3)
 
+    #The "ImageDraw" module will load the default background image (which
+    #the user can change by selecting another image in the working folder and
+    #passing in its name as an additional argument, when calling the Python code.
+    font_title = ImageFont.truetype(cover_font, cover_title_font_size)
+    image = Image.open(cover_background_img)
+
     if perforated_cover == False:
         #Some extra pixels are subtracted from "left_margin_cover_textbox",
         #(35 pixels by default), as there seems to be 3 mm missing on both
@@ -1026,11 +1036,11 @@ or perforated_cover == True)):
         #is set to 50 pixels: "top_margin_cover_textbox+100"
         vertical_margin_cover_text = top_margin_cover_textbox + 100
 
-        #The "ImageDraw" module will load the default background image (which
-        #the user can change by selecting another image in the working folder and
-        #passing in its name as an additional argument, when calling the Python code.
-        font_title = ImageFont.truetype(cover_font, cover_title_font_size)
-        image = Image.open(cover_background_img)
+        # #The "ImageDraw" module will load the default background image (which
+        # #the user can change by selecting another image in the working folder and
+        # #passing in its name as an additional argument, when calling the Python code.
+        # font_title = ImageFont.truetype(cover_font, cover_title_font_size)
+        # image = Image.open(cover_background_img)
 
         #If the user hasn't provided a color for the cover text box
         #nor for the cover text, the colors will be assigned automatically
