@@ -2508,17 +2508,16 @@ or perforated_cover == True)):
                         starting_x += round(inches_between_dots*300)
                 gutter_dot_x = starting_x - round(inches_between_dots*300)
                 #Black squares are drawn in the top corners of the page, for the segmentation
-                #code to be able to align the pages accurately. Of note, the squares nearest
-                #to the gutter margin are shifted horizontally to account for the fact that
-                #the dot nearest to the gutter margin may not be exactly on the gutter margin.
-                #As such, the outer vertical edges of the corner squares line up with the center
-                #of the first dots drawn from the outer edges of the page.
+                #code to be able to align the pages accurately. Of note, "gutter_dot_x" is used
+                #as the "x1" coordinate for the squares nearest to the gutter margin, to account
+                #for the fact that the dot nearest to the gutter margin may not be exactly on
+                #the gutter margin.
                 blank_canvas_editable.rectangle([(left_margin_x_pixel, left_margin_x_pixel+top_y_shift),
                 (left_margin_x_pixel+50, left_margin_x_pixel+50+top_y_shift)], fill="Black")
-                blank_canvas_editable.rectangle([(3300/2-gutter_margin_width_pixels-
-                (3300/2-gutter_margin_width_pixels-gutter_dot_x),
-                left_margin_x_pixel+top_y_shift), (3300/2-gutter_margin_width_pixels-
-                (3300/2-gutter_margin_width_pixels+50-gutter_dot_x), left_margin_x_pixel+50+top_y_shift)],
+
+                blank_canvas_editable.rectangle([(gutter_dot_x-50,
+                left_margin_x_pixel+top_y_shift), (gutter_dot_x,
+                left_margin_x_pixel+50+top_y_shift)],
                 fill="Black")
             #Similar to the lined and graph pages on even and odd pages above, a second "if"
             #statement deals with drawing dots on the odd (right) pages.
@@ -2537,10 +2536,9 @@ or perforated_cover == True)):
 
                 blank_canvas_editable.rectangle([(right_margin_x_pixel-50, left_margin_x_pixel+top_y_shift),
                 (right_margin_x_pixel, left_margin_x_pixel+50+top_y_shift)], fill="Black")
-                blank_canvas_editable.rectangle([(3300/2+gutter_margin_width_pixels-
-                (gutter_dot_x-3300/2-gutter_margin_width_pixels-50),
-                left_margin_x_pixel+top_y_shift), (3300/2+gutter_margin_width_pixels+50-(gutter_dot_x-3300/2-
-                gutter_margin_width_pixels-50), left_margin_x_pixel+50+top_y_shift)],
+
+                blank_canvas_editable.rectangle([(gutter_dot_x,
+                left_margin_x_pixel+top_y_shift), (gutter_dot_x+50, left_margin_x_pixel+50+top_y_shift)],
                 fill="Black")
 
         elif (scriptreader == False and scriptreader_left == True and scriptreader_right == False and
@@ -2559,10 +2557,10 @@ or perforated_cover == True)):
 
             blank_canvas_editable.rectangle([(left_margin_x_pixel, left_margin_x_pixel+top_y_shift),
             (left_margin_x_pixel+50, left_margin_x_pixel+50+top_y_shift)], fill="Black")
-            blank_canvas_editable.rectangle([(3300/2-gutter_margin_width_pixels-
-            (3300/2-gutter_margin_width_pixels-gutter_dot_x),
-            left_margin_x_pixel+top_y_shift), (3300/2-gutter_margin_width_pixels-
-            (3300/2-gutter_margin_width_pixels+50-gutter_dot_x), left_margin_x_pixel+50+top_y_shift)],
+
+            blank_canvas_editable.rectangle([(gutter_dot_x-50,
+            left_margin_x_pixel+top_y_shift), (gutter_dot_x,
+            left_margin_x_pixel+50+top_y_shift)],
             fill="Black")
 
         elif (scriptreader == False and scriptreader_left == False and scriptreader_right == True and
@@ -2581,10 +2579,9 @@ or perforated_cover == True)):
 
             blank_canvas_editable.rectangle([(right_margin_x_pixel-50, left_margin_x_pixel+top_y_shift),
             (right_margin_x_pixel, left_margin_x_pixel+50+top_y_shift)], fill="Black")
-            blank_canvas_editable.rectangle([(3300/2+gutter_margin_width_pixels-
-            (gutter_dot_x-3300/2-gutter_margin_width_pixels-50),
-            left_margin_x_pixel+top_y_shift), (3300/2+gutter_margin_width_pixels+50-(gutter_dot_x-3300/2-
-            gutter_margin_width_pixels-50), left_margin_x_pixel+50+top_y_shift)],
+
+            blank_canvas_editable.rectangle([(gutter_dot_x,
+            left_margin_x_pixel+top_y_shift), (gutter_dot_x+50, left_margin_x_pixel+50+top_y_shift)],
             fill="Black")
 
 
