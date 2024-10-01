@@ -47,13 +47,7 @@ The instructions below are for Windows operating systems, but the code should ru
 py -m pip install NumPy --upgrade Pillow
 ```
 
-<b>Step 2</b>- Install <b>Glob</b> (Python module to find files on your computer) using the following command:
-
-```
-py -m pip install glob2
-```
-
-<b>Step 3</b>- You're now ready to use <b>PrintANotebook</b>! 🎉
+<b>Step 2</b>- You're now ready to use <b>PrintANotebook</b>! 🎉
 <br><br><br>
 
 ## 🎈 Usage <a name="usage"></a>
