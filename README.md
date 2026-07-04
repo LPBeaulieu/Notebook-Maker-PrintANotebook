@@ -39,8 +39,10 @@ The code for cover image generation was optimized on notebooks having at least 1
 ## 🏁 Getting Started <a name = "getting_started"></a>
 
 The following instructions will be provided in great detail, as they are intended for a broad audience and will allow to run a copy of <b>PrintANotebook</b> on a local computer. You can also view the YouTube version of the instructions at the following link: https://www.youtube.com/watch?v=ycg2PL3bQQ4&list=PL8fAaOg_mhoGncGBjwn9A740Hh8IppOPH&index=2
-   
-The instructions below are for Windows operating systems, but the code should run nicely on Linux and Mac-OS as well.
+
+Start by downloading the zipped working folder, by going to the top of this github repo and clicking on the green "Code" button, and then click on the "Download Zip" option. Extract the zipped folder to your desired location. Next, hold the "Shift" key while right-clicking in your working folder, then select "Open PowerShell window here" to access the PowerShell in your working folder and enter the commands described below.
+
+If your computer is running on Windows 10 or later with a x86_64 architecture, simply include the "PrintANotebook_Win10_x86_64_v1_0.exe" executable file from the "Releases" section in the unzipped working folder and proceed to the "Usage" section.
 
 <b>Step 1</b>- Hold the "Shift" key while right-clicking in your working folder and select "Open PowerShell window here" to access the PowerShell in your working folder. Then, install <b>NumPy</b> and <b>Pillow</b> (Required Python modules to generate the cover image) by entering the following command:
 ```
@@ -61,8 +63,14 @@ py -m pip install NumPy --upgrade Pillow
 ![Figure 2](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Dot%20grid%20on%20both%20pages.jpg)<hr> <b>Figure 2.</b> For a notebook with dotted pages and page numbering on both left and right pages, the following command would be entered, and you would need to replace "2.63" by the actual width measurement of the ream of 500 pages that you will be printing on: 
 <br>
 ```
-py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid" 
+py printanotebook.py "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid"
 ```
+
+If your computer is running on Windows 10 or later with a x86_64 architecture and you have added the "PrintANotebook_Win10_x86_64_v1_0.exe" executable file from the "Releases" section to your working folder, then run the following in the PowerShell window instead.
+```
+./PrintANotebook_Win10_x86_64_v1_0  "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid"
+```
+
 You may choose to add line breaks at certain points in the title by including at least two successive spaces in-between the words that you want to be split on different lines, when passing in the "title:Your Title Here" argument in the Python call. 
 
 <br><br>
