@@ -40,7 +40,7 @@ The code for cover image generation was optimized on notebooks having at least 1
 
 The following instructions will be provided in great detail, as they are intended for a broad audience and will allow to run a copy of <b>PrintANotebook</b> on a local computer. You can also view the YouTube version of the instructions at the following link: https://www.youtube.com/watch?v=ycg2PL3bQQ4&list=PL8fAaOg_mhoGncGBjwn9A740Hh8IppOPH&index=2
 
-Start by downloading the zipped working folder, by going to the top of this github repo and clicking on the green "Code" button, and then click on the "Download Zip" option. Extract the zipped folder to your desired location. Next, hold the "Shift" key while right-clicking in your working folder, then select "Open PowerShell window here" to access the PowerShell in your working folder and enter the commands described below.
+Start by downloading the zipped working folder, by going to the top of this GitHub repo and clicking on the green "Code" button, and then click on the "Download Zip" option. Extract the zipped folder to your desired location. Next, hold the "Shift" key while right-clicking in your working folder, then select "Open PowerShell window here" to access the PowerShell in your working folder and enter the commands described below.
 
 If your computer is running on Windows 10 or later with a x86_64 architecture, simply include the "PrintANotebook_Win10_x86_64_v1_0.exe" executable file from the "Releases" section in the unzipped working folder and proceed to the "Usage" section.
 
@@ -222,7 +222,7 @@ py printanotebook.py "title:Winter 2023 Daily Planners" "author:Louis-Philippe B
 <br><br><br>
 
 ![Figure 21](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/PrintANotebook%20Results.jpg)<hr> 
-<b>Figure 21.</b> Here is what the finished bound notebooks look like, using 28 lb perforated paper from www.perforatedpaper.com! Should you want to perforate your pages and bind your notebooks using ring binders (I find it preferable, as otherwise it is a little awkward to use clips with your glue-bound notebooks), simply include the "perforated_cover" argument when running the code. Check out the <b>ScriptReader</b> github repository for images of such ringbound notebooks: https://github.com/LPBeaulieu/Handwriting-OCR-ScriptReader.
+<b>Figure 21.</b> Here is what the finished bound notebooks look like, using 28 lb perforated paper from www.perforatedpaper.com! Should you want to perforate your pages and bind your notebooks using ring binders (I find it preferable, as otherwise it is a little awkward to use clips with your glue-bound notebooks), simply include the "perforated_cover" argument when running the code. Check out the <b>ScriptReader</b> GitHub repository for images of such ringbound notebooks: https://github.com/LPBeaulieu/Handwriting-OCR-ScriptReader.
 <br><br><br>
 
 <b>Well there you have it!</b> You can now generate your own customized notebooks and print the notebook pages in your favorite color! Now dollop some glue onto the spine, slap on the cover, let it dry under some books and you'll soon be able to lay down your most treasured thoughts in your personalized notebook! 🎉📖
