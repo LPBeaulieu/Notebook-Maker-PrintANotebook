@@ -60,6 +60,8 @@ py -m pip install NumPy --upgrade Pillow
 
 <b>Step 3</b>- With every file in its right place, it is now time to run the code! Start by holding the "Shift" key while right-clicking in your working folder, then select "Open PowerShell window here" to access the PowerShell in your working folder and enter the commands described below. The following figures will explain which arguments should be added after the Python code call in order to generate different types of notebooks. In all cases, you will need to <b>pass in the width or thickness of a ream of 500 pages of the paper that you will be printing on, in inches and decimal form, but without units, after the "inches_per_ream_500_pages:" argument</b>, which will allow the code to properly size the spine of the cover. For measurements in centimeters, use "cm_per_ream_500_pages:" instead. Although the different arguments delimited by double quotes may be provided in any order, they must be separated from one another by a space, as in the examples below.
 
+<br><br>
+
 ![Figure 2](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/Dot%20grid%20on%20both%20pages.jpg)<hr> <b>Figure 2.</b> For a notebook with dotted pages and page numbering on both left and right pages, the following command would be entered, and you would need to replace "2.63" by the actual width measurement of the ream of 500 pages that you will be printing on: 
 <br>
 ```
@@ -70,6 +72,8 @@ If your computer is running on Windows 10 or later with a x86_64 architecture an
 ```
 ./PrintANotebook_Win10_x86_64_v1_0  "title:Your Title Here" "author:Your Name Here" "spine_text:Your Spine Text Here" "number_of_pages:192" "page_numbers" "inches_per_ream_500_pages:2.63" "dot_grid"
 ```
+
+Should you want to generate a notebook in A4 paper format, simply add the "A4" argument when running the Python script or executable.
 
 You may choose to add line breaks at certain points in the title by including at least two successive spaces in-between the words that you want to be split on different lines, when passing in the "title:Your Title Here" argument in the Python call. 
 
@@ -222,7 +226,7 @@ py printanotebook.py "title:Winter 2023 Daily Planners" "author:Louis-Philippe B
 <br><br><br>
 
 ![Figure 21](https://github.com/LPBeaulieu/Notebook-Maker-PrintANotebook/blob/main/Github%20Page%20Images/PrintANotebook%20Results.jpg)<hr> 
-<b>Figure 21.</b> Here is what the finished bound notebooks look like, using 28 lb perforated paper from www.perforatedpaper.com! Should you want to perforate your pages and bind your notebooks using ring binders (I find it preferable, as otherwise it is a little awkward to use clips with your glue-bound notebooks), simply include the "perforated_cover" argument when running the code. Check out the <b>ScriptReader</b> GitHub repository for images of such ringbound notebooks: https://github.com/LPBeaulieu/Handwriting-OCR-ScriptReader.
+<b>Figure 21.</b> Here is what the finished bound notebooks look like, using 28 lb perforated paper from www.perforatedpaper.com!
 <br><br><br>
 
 <b>Well there you have it!</b> You can now generate your own customized notebooks and print the notebook pages in your favorite color! Now dollop some glue onto the spine, slap on the cover, let it dry under some books and you'll soon be able to lay down your most treasured thoughts in your personalized notebook! 🎉📖
